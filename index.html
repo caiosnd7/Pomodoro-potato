@@ -58,7 +58,21 @@
   .portrait::before,.portrait::after{content:""; position:absolute; width:10px; height:10px; border:2px solid var(--gold); z-index:2}
   .portrait::before{left:6px; top:6px; border-right:none; border-bottom:none}
   .portrait::after{right:6px; bottom:6px; border-left:none; border-top:none}
-  #mageImg{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); max-width:calc(100% - 20px); image-rendering:pixelated; transition:opacity .4s; z-index:1}
+  #mageImg{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); transform-origin:50% 100%; max-width:calc(100% - 20px);
+    image-rendering:pixelated; z-index:1; animation:breathe 3.2s ease-in-out infinite, aura 2.4s ease-in-out infinite}
+  @keyframes breathe{
+    0%,100%{transform:translateX(-50%) scale(1,1)}
+    50%{transform:translateX(-50%) scale(1.008,1.022)}
+  }
+  @keyframes aura{
+    0%,100%{filter:drop-shadow(0 0 2px rgba(126,224,74,.15))}
+    50%{filter:drop-shadow(0 0 var(--glow,6px) rgba(126,224,74,.55))}
+  }
+  .st0 #mageImg{--glow:4px} .st1 #mageImg{--glow:8px} .st2 #mageImg{--glow:14px}
+  .st2 #mageImg{animation:breathe 3.2s ease-in-out infinite, aura 1.8s ease-in-out infinite, sway 6s ease-in-out infinite}
+  @keyframes sway{0%,100%{margin-left:0}50%{margin-left:2px}}
+  .shadow{animation:shadowp 3.2s ease-in-out infinite}
+  @keyframes shadowp{0%,100%{width:150px;opacity:.6}50%{width:144px;opacity:.5}}
   #fx{position:absolute; inset:0; z-index:1; pointer-events:none}
   .shadow{position:absolute; left:50%; bottom:10px; width:150px; height:12px; transform:translateX(-50%); border-radius:50%; background:rgba(0,0,0,.6)}
   .slots{display:grid; grid-template-columns:repeat(6,40px); gap:6px; justify-content:center; padding:8px; background:var(--panel2);
@@ -95,8 +109,8 @@
     text-shadow:2px 2px 0 #000; pointer-events:none; opacity:0; white-space:nowrap}
   .float.show{animation:rise 1.4s steps(14) forwards}
   @keyframes rise{0%{opacity:1; top:45%}100%{opacity:0; top:8%}}
-  .lvlup #mageImg{animation:flash .9s steps(6)}
-  @keyframes flash{0%,100%{filter:none}50%{filter:brightness(2.2) drop-shadow(0 0 12px #7ee04a)}}
+  .lvlup #mageImg{animation:flash .9s steps(6), breathe 3.2s ease-in-out infinite}
+  @keyframes flash{0%,100%{filter:none}50%{filter:brightness(2.2) drop-shadow(0 0 16px #7ee04a)}}
 
   /* modais */
   .modal{position:fixed; inset:0; background:rgba(5,4,8,.85); display:none; align-items:center; justify-content:center; padding:16px; z-index:10}
@@ -371,6 +385,7 @@ function drawMage(){
     img.src=MAGE_IMG[stage]; img.style.height=MAGE_H[stage]+"px";
     if(shownStage!==-1){ const p=$("portrait"); p.classList.remove("lvlup"); void p.offsetWidth; p.classList.add("lvlup"); }
     shownStage=stage;
+    $("portrait").classList.remove("st0","st1","st2"); $("portrait").classList.add("st"+stage);
   }
 }
 const parts=[];
