@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pomodoro da Missão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0a14; --panel:#16131f; --edge:#2a2440; --ink:#e9e6f5; --dim:#7d7896;
+    --cyan:#22e6ff; --mag:#ff2fa8; --orange:#ff7a1a; --screen:#05040a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Press Start 2P", monospace; font-size:10px;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);
+  }
+  .stage{display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch}
+  .box{
+    background:var(--panel); width:300px; padding:18px; position:relative;
+    box-shadow:
+      0 0 0 3px var(--edge), 0 0 0 6px #000,
+      6px 6px 0 6px rgba(0,0,0,.6);
+    image-rendering:pixelated;
+  }
+  .title{color:var(--dim); text-align:center; margin-bottom:14px; letter-spacing:1px}
+
+  /* ---------- relógio ---------- */
+  .screen{
+    background:var(--screen); width:240px; height:240px; margin:0 auto; position:relative;
+    box-shadow: inset 0 0 0 4px #000, 0 0 0 3px #1f1b2e;
+  }
+  .screen svg{position:absolute; inset:0; shape-rendering:crispEdges}
+  .readout{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .top{display:flex; gap:6px; align-items:center; height:14px; margin-bottom:4px}
+  .tom{width:8px; height:8px; background:var(--mag); box-shadow:0 0 6px var(--mag)}
+  .tom.off{background:#2b2638; box-shadow:none}
+  .mode{font-size:8px; color:var(--cyan); margin-bottom:2px; letter-spacing:2px}
+  .big{font-family:"VT323", monospace; font-size:64px; line-height:.9; color:#fff;
+       text-shadow:0 0 8px rgba(255,255,255,.35)}
+  .sub{font-family:"VT323", monospace; font-size:26px; color:var(--dim); margin-top:4px}
+  .sub b{color:var(--ink); font-weight:normal}
+
+  .keys{display:flex; gap:8px; justify-content:center; margin-top:18px}
+  .key{
+    font-family:inherit; font-size:8px; border:none; cursor:pointer; color:#2a2633;
+    width:56px; height:38px; background:#e8e6ef; position:relative; top:0;
+    box-shadow: inset -3px -4px 0 #b9b5c6, 0 4px 0 #6d6880, 0 4px 0 2px #000;
+    transition:top .05s, box-shadow .05s;
+  }
+  .key:active,.key.on{top:3px; box-shadow: inset -3px -4px 0 #b9b5c6, 0 1px 0 #6d6880, 0 1px 0 2px #000}
+  .key.go{background:var(--orange); color:#fff; box-shadow: inset -3px -4px 0 #c4520a, 0 4px 0 #7a3306, 0 4px 0 2px #000}
+  .key.go:active{box-shadow: inset -3px -4px 0 #c4520a, 0 1px 0 #7a3306, 0 1px 0 2px #000}
+
+  /* ---------- mago ---------- */
+  .portrait{
+    width:240px; height:240px; margin:0 auto; background:var(--screen); position:relative; overflow:hidden;
+    box-shadow: inset 0 0 0 4px #000, 0 0 0 3px #1f1b2e;
+    background-image:
+      linear-gradient(transparent 70%, rgba(34,230,255,.08)),
+      repeating-linear-gradient(90deg, rgba(255,47,168,.06) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(0deg, rgba(34,230,255,.06) 0 1px, transparent 1px 24px);
+  }
+  canvas{display:block; margin:0 auto; image-rendering:pixelated}
+  .rank{text-align:center; margin-top:12px; color:var(--cyan)}
+  .lvl{color:var(--mag)}
+  .xp{height:12px; background:#000; margin:10px 6px 4px; box-shadow:0 0 0 2px var(--edge); position:relative}
+  .xp i{position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--cyan),var(--mag)); width:0; transition:width .4s steps(12)}
+  .xptext{text-align:center; color:var(--dim); font-size:8px}
+  .next{text-align:center; color:var(--dim); font-size:7px; margin-top:8px; line-height:1.6; min-height:22px}
+  .up{
+    display:block; margin:12px auto 0; font-family:inherit; font-size:10px; cursor:pointer;
+    color:#000; background:var(--cyan); border:none; padding:10px 14px; position:relative; top:0;
+    box-shadow:0 4px 0 #0a8ea0, 0 4px 0 2px #000;
+  }
+  .up:active{top:3px; box-shadow:0 1px 0 #0a8ea0, 0 1px 0 2px #000}
+  .up:disabled{background:#3a3550; color:var(--dim); box-shadow:0 4px 0 #221e30, 0 4px 0 2px #000; cursor:default}
+  .undo{display:block; margin:8px auto 0; background:none; border:none; color:#55506a; font-family:inherit; font-size:7px; cursor:pointer}
+  .float{
+    position:absolute; left:50%; top:40%; transform:translateX(-50%); color:var(--mag);
+    font-size:12px; text-shadow:0 0 8px var(--mag); pointer-events:none; opacity:0; white-space:nowrap;
+  }
+  .float.show{animation:rise 1.4s steps(14) forwards}
+  @keyframes rise{0%{opacity:1; top:45%}100%{opacity:0; top:10%}}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- RELÓGIO -->
+  <section class="box" aria-label="Pomodoro">
+    <div class="title">POMODORO</div>
+    <div class="screen">
+      <svg id="ring" width="240" height="240" viewBox="0 0 240 240" aria-hidden="true"></svg>
+      <div class="readout">
+        <div class="top" id="toms"></div>
+        <div class="mode" id="mode">FOCO</div>
+        <div class="big" id="clock">25:00</div>
+        <div class="sub"><span id="day">SEG</span> <b id="now">00:00</b></div>
+      </div>
+    </div>
+    <div class="keys">
+      <button class="key go" id="start">▶</button>
+      <button class="key on" data-mode="focus">FOCO</button>
+      <button class="key" data-mode="rest">PAUSA</button>
+      <button class="key" id="reset">↺</button>
+    </div>
+  </section>
+
+  <!-- MAGO -->
+  <section class="box" aria-label="Mago">
+    <div class="title">MAGO NEON</div>
+    <div class="portrait">
+      <canvas id="mage" width="200" height="232"></canvas>
+      <div class="float" id="float"></div>
+    </div>
+    <div class="rank"><span class="lvl" id="lvl">NV 1</span> · <span id="rankname">APRENDIZ</span></div>
+    <div class="xp"><i id="xpbar"></i></div>
+    <div class="xptext" id="xptext">0 / 650 XP</div>
+    <div class="next" id="next"></div>
+    <button class="up" id="up">⬆ UPAR</button>
+    <button class="undo" id="undo">desfazer</button>
+  </section>
+
+</div>
+
+<script>
+/* ================= RELÓGIO ================= */
+const MODES = {
+  focus:{min:25, label:"FOCO",  next:"rest"},
+  rest: {min:5,  label:"PAUSA", next:"focus"}
+};
+const SEG = 30;
+const COLORS = ["#1e90ff","#22b8ff","#22e6ff","#22f0b0","#3ef06a","#9be83a","#ffd23f","#ffb02e","#ff7a1a","#ff4a3a","#ff2f6e","#ff2fa8"];
+const ring = document.getElementById("ring");
+const segs = [];
+(function buildRing(){
+  const cx=120, cy=120, r1=96, r2=112, gap=3.2;
+  for(let i=0;i<SEG;i++){
+    const a0 = (i/SEG)*360 - 90 + gap/2, a1 = ((i+1)/SEG)*360 - 90 - gap/2;
+    const p = (r,a)=>[cx + r*Math.cos(a*Math.PI/180), cy + r*Math.sin(a*Math.PI/180)];
+    const [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
+    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",`M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4} Z`);
+    const c = COLORS[Math.floor(i/SEG*COLORS.length)];
+    path.dataset.c = c;
+    ring.appendChild(path); segs.push(path);
+  }
+})();
+
+const clock=document.getElementById("clock"), modeEl=document.getElementById("mode"),
+      startBtn=document.getElementById("start"), toms=document.getElementById("toms");
+let mode="focus", total=25*60, left=total, endAt=null, tick=null, audio=null;
+let done = load("pomos", 0);
+
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function drawClock(){
+  clock.textContent=fmt(left);
+  modeEl.textContent=MODES[mode].label;
+  modeEl.style.color = mode==="focus" ? "var(--cyan)" : "#3ef06a";
+  const lit = Math.ceil(SEG*left/total);
+  segs.forEach((p,i)=>{
+    const on = i < lit;
+    p.setAttribute("fill", on ? p.dataset.c : "#1a1726");
+    p.style.filter = on && tick ? `drop-shadow(0 0 3px ${p.dataset.c})` : "none";
+  });
+  toms.innerHTML = "";
+  for(let i=0;i<4;i++){ const d=document.createElement("i"); d.className="tom"+(i < done%4 || (done>0 && done%4===0) ? "" : " off"); toms.appendChild(d); }
+  document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
+  document.title=(tick?fmt(left)+" · ":"")+"Pomodoro da Missão";
+}
+function drawNow(){
+  const d=new Date();
+  document.getElementById("now").textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  document.getElementById("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()];
+}
+function beep(){
+  try{
+    audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+    [0,.18,.36,.7].forEach((t,i)=>{
+      const o=audio.createOscillator(), g=audio.createGain();
+      o.type="square"; o.frequency.value=[660,880,990,1320][i];
+      o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(.08,audio.currentTime+t); g.gain.setValueAtTime(0,audio.currentTime+t+.14);
+      o.start(audio.currentTime+t); o.stop(audio.currentTime+t+.15);
+    });
+  }catch(e){}
+}
+function stop(){clearInterval(tick); tick=null; endAt=null; startBtn.textContent="▶"}
+function setMode(m){stop(); mode=m; total=MODES[m].min*60; left=total; drawClock()}
+function step(){
+  left=Math.max(0,Math.round((endAt-Date.now())/1000));
+  if(left===0){ beep(); if(mode==="focus"){done++; save("pomos",done)} setMode(MODES[mode].next); return; }
+  drawClock();
+}
+startBtn.onclick=()=>{
+  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume()}catch(e){}
+  if(tick){stop(); drawClock(); return}
+  endAt=Date.now()+left*1000; tick=setInterval(step,250); startBtn.textContent="❚❚"; drawClock();
+};
+document.getElementById("reset").onclick=()=>setMode(mode);
+document.querySelectorAll(".key[data-mode]").forEach(k=>k.onclick=()=>setMode(k.dataset.mode));
+drawNow(); setInterval(drawNow,10000); drawClock();
+
+/* ================= MAGO ================= */
+const MISSIONS=[
+  ["Missão 1 · O que é uma skill",50],["Missão 2 · Anatomia",50],["Missão 3 · Estudo de caso",75],
+  ["Missão 4 · Skill de brinquedo",75],["Missão 5 · Posts do poke v1",100],["Missão 6 · Com vs. sem",100],
+  ["Chefão · Skill v2 real",200]
+];
+const RANKS=[[0,"APRENDIZ"],[175,"ARTESÃO"],[450,"MESTRE"]];
+const MAX=650;
+let doneMissions = load("missions",0);
+
+const PAL={
+  K:"#0d0b14", H:"#3b2a63", h:"#5a43a0", S:"#e8b796", s:"#b9826a",
+  V:"#22e6ff", C:"#22e6ff", M:"#ff2fa8", G:"#c9c3d6", g:"#6b6680", Y:"#ffd23f", W:"#ffffff", D:"#1b1430", T:"#14e0c8"
+};
+const HALF=[
+  "..........",
+  "........KK",
+  ".......KHH",
+  "......KHHh",
+  ".....KHHhh",
+  ".....KHHHH",
+  ".....KHKKK",
+  ".....KHKVV",
+  ".....KHKSS",
+  ".....KHKsS",
+  "....KHHHKK",
+  "...KHHMHHH",
+  "...KHHHHCH",
+  "..KHHhHHHC",
+  "..KHhhHHHH",
+  "..KSKHHHHH",
+  "...KKHHHMM",
+  "....KHHHHH",
+  "....KHHhHH",
+  "...KHHhhHH",
+  "...KHHHHHH",
+  "...KKKKKKK",
+  "....KCK...",
+  "....KKK..."
+];
+const BASE = HALF.map(r=>r+r.split("").reverse().join(""));
+const W=20, Hh=24, PX=8, OX=20, OY=24;
+
+function stageOf(xp){return xp>=450?2:xp>=175?1:0}
+
+function overlays(stage,t){
+  const o=[]; const add=(x,y,c)=>o.push([x,y,c]);
+  // ponta do capuz
+  add(9,0,"K"); add(10,0,"K");
+  if(stage===0){
+    for(let y=10;y<=16;y++) add(17,y,"g");
+    add(17,9,"C"); if(t%2) {add(18,8,"C"); add(16,8,"C");}
+  }
+  if(stage>=1){
+    // ombreiras e circuitos
+    add(3,11,"C"); add(4,11,"C"); add(15,11,"C"); add(16,11,"C");
+    add(9,17,"M"); add(10,18,"M"); add(9,19,"M"); add(10,20,"M");
+    // cajado alto
+    for(let y=4;y<=22;y++) add(18,y,"g");
+    add(17,15,"S");
+    const orb = stage===2 ? "Y" : "M";
+    add(17,2,orb); add(18,2,orb); add(19,2,orb);
+    add(17,3,orb); add(18,3,"W"); add(19,3,orb);
+    add(18,1,orb); if(t%2) add(18,0,orb);
+  }
+  if(stage===2){
+    // antenas no capuz + capa neon
+    add(7,1,"C"); add(6,0,"C"); add(12,1,"C"); add(13,0,"C");
+    for(let y=11;y<=21;y++){ add(1,y,y%2?"D":"M"); add(0,y+1>21?21:y+1,"K"); }
+    for(let y=12;y<=20;y++) add(2,y,"D");
+    // runas flutuando
+    const runes=[[ -2,6],[21,9],[-1,17],[21,19],[2,-1],[16,-1]];
+    runes.forEach(([x,y],i)=>{ if((t+i)%3!==0) add(x,y+((t+i)%2),i%2?"C":"M"); });
+  }
+  return o;
+}
+
+const cv=document.getElementById("mage"), ctx=cv.getContext("2d");
+let frame=0;
+function drawMage(){
+  const xp=xpOf(doneMissions), stage=stageOf(xp);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const bob = frame%4<2 ? 0 : 1;
+  const robe = stage===0?"#3b2a63": stage===1?"#4a2f8a":"#1d1838";
+  const robeHi = stage===0?"#5a43a0": stage===1?"#6a4fc0":"#2e5c8a";
+  const visor = stage===2?"#ff2fa8":"#22e6ff";
+  const pal = Object.assign({},PAL,{H:robe,h:robeHi,V:visor});
+  // sombra no chão
+  ctx.fillStyle="rgba(34,230,255,.18)";
+  ctx.fillRect(OX+4*PX, OY+24*PX, 12*PX, PX);
+  // aura atrás do mago
+  if(stage>=1){
+    const g=ctx.createRadialGradient(OX+10*PX, OY+13*PX, 10, OX+10*PX, OY+13*PX, 110);
+    const a = stage===2 ? (frame%2?.30:.22) : .14;
+    g.addColorStop(0, stage===2?`rgba(255,47,168,${a})`:`rgba(34,230,255,${a})`);
+    g.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=g; ctx.fillRect(0,0,cv.width,cv.height);
+  }
+  const NEON={C:1,M:1,Y:1,V:1};
+  const put=(x,y,c)=>{ if(!pal[c]) return;
+    if(NEON[c] && stage>=1){ ctx.shadowColor=pal[c]; ctx.shadowBlur=6; } else ctx.shadowBlur=0;
+    ctx.fillStyle=pal[c]; ctx.fillRect(OX+x*PX, OY+(y+bob)*PX, PX, PX); };
+  for(let y=0;y<Hh;y++) for(let x=0;x<W;x++){ const c=BASE[y][x]; if(c!==".") put(x,y,c); }
+  overlays(stage,frame).forEach(([x,y,c])=>put(x,y,c));
+  ctx.shadowBlur=0;
+  frame++;
+}
+setInterval(drawMage,350);
+
+function xpOf(n){return MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0)}
+function drawStats(){
+  const xp=xpOf(doneMissions), stage=stageOf(xp);
+  document.getElementById("lvl").textContent="NV "+(stage+1);
+  document.getElementById("rankname").textContent=RANKS[stage][1];
+  document.getElementById("xpbar").style.width=(xp/MAX*100)+"%";
+  document.getElementById("xptext").textContent=xp+" / "+MAX+" XP";
+  const up=document.getElementById("up"), next=document.getElementById("next");
+  if(doneMissions>=MISSIONS.length){ up.disabled=true; up.textContent="CURSO COMPLETO"; next.textContent="Todas as missões feitas."; }
+  else { up.disabled=false; up.textContent="⬆ UPAR +"+MISSIONS[doneMissions][1]+" XP"; next.textContent="Próxima: "+MISSIONS[doneMissions][0]; }
+}
+function pop(text){ const f=document.getElementById("float"); f.textContent=text; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
+document.getElementById("up").onclick=()=>{
+  if(doneMissions>=MISSIONS.length) return;
+  const before=stageOf(xpOf(doneMissions));
+  doneMissions++; save("missions",doneMissions);
+  const after=stageOf(xpOf(doneMissions));
+  pop(after>before ? "LEVEL UP!" : "+"+MISSIONS[doneMissions-1][1]+" XP");
+  try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume(); beep(); }catch(e){}
+  drawStats(); drawMage();
+};
+document.getElementById("undo").onclick=()=>{ if(doneMissions>0){doneMissions--; save("missions",doneMissions); drawStats(); drawMage();} };
+drawStats(); drawMage();
+
+/* ================= salvar ================= */
+function load(k,d){ try{ const v=localStorage.getItem("pomo-mago-"+k); return v===null?d:+v; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem("pomo-mago-"+k,v); }catch(e){} }
+</script>
+</body>
+</html>
