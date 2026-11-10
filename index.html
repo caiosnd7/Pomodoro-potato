@@ -153,6 +153,10 @@
   .adj button{border:none; cursor:pointer; background:var(--panel2); color:var(--gold2); font-size:8px; padding:7px 10px; box-shadow:0 0 0 2px var(--golddk)}
   .adj button:disabled{opacity:.35; cursor:default}
   .adj .done{color:var(--green); box-shadow:0 0 0 2px var(--green2)}
+  .backup{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap}
+  .backup button,.backup label{border:none; cursor:pointer; background:var(--panel2); color:var(--gold2); font-size:7px; padding:9px 12px; box-shadow:0 0 0 2px var(--golddk)}
+  .backup input{display:none}
+  .bkmsg{text-align:center; font-size:7px; color:var(--green); margin-top:8px; min-height:10px; line-height:1.6}
   /* tarefas */
   .tasks{margin-top:18px; background:var(--panel2); padding:10px 12px; box-shadow:0 0 0 2px var(--golddk)}
   .tasks .h{color:var(--gold2); font-size:8px; margin-bottom:10px; display:flex; justify-content:space-between}
@@ -319,6 +323,11 @@
       <textarea id="dayNote" placeholder="Como foi o dia? O que estudou, o que travou..."></textarea>
       <div class="saved" id="saved"></div>
     </div>
+    <div class="backup">
+      <button id="exportBk">💾 EXPORTAR BACKUP</button>
+      <label for="importBk">📂 IMPORTAR BACKUP</label><input type="file" id="importBk" accept=".json,application/json">
+    </div>
+    <div class="bkmsg" id="bkmsg"></div>
   </div>
 </div>
 
@@ -700,6 +709,23 @@ let noteTimer=null;
 $("dayNote").addEventListener("input",()=>{ clearTimeout(noteTimer); noteTimer=setTimeout(()=>{ const v=$("dayNote").value.trim(); if(v) DB.notes[selDay]=v; else delete DB.notes[selDay]; save();
   $("saved").textContent="✔ salvo"; setTimeout(()=>$("saved").textContent="",1200); const keep=$("dayNote").value; drawHist(); $("dayNote").value=keep; },500); });
 $("openHist").onclick=()=>{ selDay=today(); drawHist(); openModal("histModal"); };
+
+/* --- backup --- */
+$("exportBk").onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:"pomodoro-potato", version:2, exported:new Date().toISOString(), data:DB},null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`pomodoro-potato-backup-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  DB.lastBackup=today(); save(); $("bkmsg").textContent="✔ Backup baixado. Guarde o arquivo (ex.: no Google Drive).";
+};
+let pendingImport=null;
+$("importBk").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ try{ const j=JSON.parse(r.result), d=j.data||j; if(typeof d.xp!=="number"||!Array.isArray(d.sessions)) throw 0;
+      pendingImport=d; $("bkmsg").innerHTML=`Backup de ${j.exported?new Date(j.exported).toLocaleDateString("pt-BR"):"data desconhecida"} · ${d.sessions.length} pomodoros · ${d.xp} XP.<br><button id="confirmImp" style="margin-top:8px;border:none;cursor:pointer;background:#a8433a;color:#fff;font-family:inherit;font-size:7px;padding:8px 10px">SUBSTITUIR PROGRESSO ATUAL</button>`;
+      $("confirmImp").onclick=()=>{ localStorage.setItem(KEY, JSON.stringify(pendingImport)); location.reload(); };
+    }catch(x){ $("bkmsg").textContent="✖ Esse arquivo não é um backup válido."; } e.target.value=""; };
+  r.readAsText(f);
+};
 
 /* ========================================================= */
 drawNow(); setInterval(drawNow,10000);
