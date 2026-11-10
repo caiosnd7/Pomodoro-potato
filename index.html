@@ -148,16 +148,65 @@
   .mi a{color:var(--ink); text-decoration:none; line-height:1.6}
   .mi a:hover{color:var(--green)}
   .mi .xpv{color:var(--gold2); white-space:nowrap}
+
+  /* tarefas */
+  .tasks{margin-top:18px; background:var(--panel2); padding:10px 12px; box-shadow:0 0 0 2px var(--golddk)}
+  .tasks .h{color:var(--gold2); font-size:8px; margin-bottom:10px; display:flex; justify-content:space-between}
+  .task{display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; font-size:8px; line-height:1.5}
+  .task .cb{width:14px; height:14px; flex:none; background:#0a0910; box-shadow:0 0 0 2px var(--golddk); display:flex; align-items:center; justify-content:center; color:var(--green); font-size:10px}
+  .task.done{color:var(--dim)} .task.done .cb{box-shadow:0 0 0 2px var(--green)}
+  .task .xpv{margin-left:auto; color:var(--gold2); font-size:7px}
+  /* atributos no card */
+  .attrs{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:12px}
+  .at{background:var(--panel2); padding:8px 4px; text-align:center; box-shadow:0 0 0 2px #2c2838; font-size:6px; color:var(--dim)}
+  .at b{display:block; font-size:11px; font-weight:normal; margin-bottom:5px}
+  .at.str b{color:#ff6a4a} .at.agi b{color:#7ee04a} .at.int b{color:#4ac6ff} .at.dmg b{color:var(--gold2)}
+  .at.int{box-shadow:0 0 0 2px #2a5d7a}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:10px}
+  .btn.sm{font-size:8px; padding:10px 4px}
+  /* baú */
+  .stash{display:grid; grid-template-columns:repeat(10,1fr); gap:4px}
+  .cell{aspect-ratio:1; background:#0f0e15; box-shadow:0 0 0 1px #2c2838; position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; border:none}
+  .cell canvas,.cell img{width:80%; height:80%; image-rendering:pixelated}
+  .cell.common{box-shadow:0 0 0 1px var(--common)} .cell.rare{box-shadow:0 0 0 1px var(--rare)} .cell.epic{box-shadow:0 0 0 1px var(--epic)}
+  .cell.sel{outline:2px solid var(--gold2); z-index:1}
+  .cell .eq{position:absolute; left:1px; top:1px; font-size:5px; background:var(--green2); color:#fff; padding:1px 2px}
+  .cell:disabled{cursor:default}
+  .stashinfo{display:flex; justify-content:space-between; color:var(--dim); font-size:7px; margin-bottom:10px}
+  .detail{margin-top:14px; background:var(--panel2); padding:12px; min-height:92px; box-shadow:0 0 0 2px var(--golddk); display:flex; gap:12px; align-items:flex-start}
+  .detail .ic{width:56px; height:56px; flex:none; display:flex; align-items:center; justify-content:center; background:#0f0e15}
+  .detail .ic canvas,.detail .ic img{width:48px; height:48px; image-rendering:pixelated}
+  .detail .nm{font-size:9px; margin-bottom:8px}
+  .detail .st{font-family:"VT323",monospace; font-size:18px; color:var(--ink); line-height:1.1}
+  .detail .acts{display:flex; gap:8px; margin-top:10px}
+  .detail .acts button{border:none; cursor:pointer; font-size:7px; padding:8px 10px; color:var(--gold2); background:#26401c; box-shadow:0 0 0 2px var(--green)}
+  .detail .acts .del{background:#3a1c1c; box-shadow:0 0 0 2px #a8433a; color:#ffb3a8}
+  .detail .acts .del.confirm{background:#a8433a; color:#fff}
+  .empty{color:var(--dim); font-size:7px; line-height:1.8}
+  /* status */
+  .stgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .stcol{background:var(--panel2); padding:12px; box-shadow:0 0 0 2px var(--golddk)}
+  .stcol h3{margin:0 0 10px; font-size:9px; color:var(--gold2); font-weight:normal; text-align:center; letter-spacing:2px}
+  .kv{display:flex; justify-content:space-between; font-family:"VT323",monospace; font-size:18px; line-height:1.25}
+  .kv span:first-child{color:var(--dim)}
+  .attrrow{display:flex; gap:12px; align-items:flex-start; padding:12px; margin-top:10px; background:var(--panel2); box-shadow:0 0 0 2px #2c2838}
+  .attrrow.primary{box-shadow:0 0 0 2px #2a5d7a; background:#122030}
+  .dot{width:22px; height:22px; flex:none; border-radius:50%; box-shadow:0 0 0 2px #000}
+  .attrrow .tx{font-family:"VT323",monospace; font-size:18px; line-height:1.2}
+  .attrrow .tx b{font-family:"Press Start 2P",monospace; font-size:14px; font-weight:normal; margin-right:6px}
+  .attrrow .tx .g{color:var(--dim)}
+  .attrrow .tx .src{color:var(--gold2)}
 </style>
 </head>
 <body>
+
 <div class="stage">
 
   <!-- RELÓGIO -->
   <section class="box" aria-label="Pomodoro">
     <span class="tag">POMODORO</span>
     <div class="screen">
-      <svg id="ring" width="240" height="240" viewBox="0 0 240 240" aria-hidden="true"></svg>
+      <svg id="ring" width="250" height="250" viewBox="0 0 240 240" aria-hidden="true"></svg>
       <div class="readout">
         <div class="top" id="toms"></div>
         <div class="mode" id="mode">FOCO</div>
@@ -171,8 +220,12 @@
       <button class="key" data-mode="rest">PAUSA<span class="ic">❚❚</span></button>
       <button class="key" id="reset">ZERAR<span class="ic">↺</span></button>
     </div>
+    <div class="tasks">
+      <div class="h"><span>TAREFAS DE HOJE</span><span id="taskCount">0/2</span></div>
+      <div id="taskList"></div>
+    </div>
     <button class="hist-btn" id="openHist">📜 HISTÓRICO</button>
-    <div class="boxinfo" id="pomoBox">A cada 4 pomodoros: 1 caixa de loot</div>
+    <div class="boxinfo" id="pomoBox"></div>
   </section>
 
   <!-- MAGO -->
@@ -181,7 +234,7 @@
     <div class="hero">
       <div class="portrait" id="portrait">
         <div class="shadow"></div>
-        <img id="mageImg" alt="Mago" src="img/mago1.png">
+        <img id="mageImg" alt="Mago" src="">
         <canvas id="fx" width="298" height="270"></canvas>
         <div class="float" id="float"></div>
       </div>
@@ -189,24 +242,51 @@
     </div>
     <div class="lvline"><span class="lv" id="lv">Nv. 1</span><span class="rank" id="rank">APRENDIZ</span></div>
     <div class="xp"><i id="xpbar"></i></div>
-    <div class="xptext" id="xptext">0 / 650 XP</div>
-    <div class="power"><span>PODER</span><b id="power">10</b></div>
+    <div class="xptext" id="xptext"></div>
+    <div class="attrs" id="attrs"></div>
     <div class="next" id="next"></div>
     <div class="row">
-      <button class="btn" id="up">⬆ UPAR</button>
+      <button class="btn" id="up">⬆ MISSÃO</button>
       <button class="btn loot" id="openLoot">📦 0</button>
     </div>
-    <div class="links"><button class="undo" id="openMissions">📜 ver missões</button><button class="undo" id="undo">desfazer última</button></div>
+    <div class="row3">
+      <button class="btn loot sm" id="openStash">🧰 BAÚ</button>
+      <button class="btn loot sm" id="openStats">📊 STATUS</button>
+      <button class="btn loot sm" id="openMissions">📜 MISSÕES</button>
+    </div>
+    <div class="links"><span></span><button class="undo" id="undo">desfazer última missão</button></div>
   </section>
 </div>
 
 <!-- MODAL LOOT -->
 <div class="modal" id="lootModal" role="dialog" aria-label="Caixa de loot">
-  <div class="sheet" style="width:min(360px,100%)">
-    <h2>CAIXA DE LOOT <button class="x" data-close>✕</button></h2>
+  <div class="sheet" style="width:min(380px,100%)">
+    <h2><span id="lootTitle">CAIXA DE LOOT</span> <button class="x" data-close>✕</button></h2>
     <div class="chestwrap"><canvas id="chest" width="144" height="120"></canvas></div>
     <div class="hint" id="lootHint">Clique na caixa para abrir</div>
     <div class="reveal" id="reveal"></div>
+  </div>
+</div>
+
+<!-- MODAL BAÚ -->
+<div class="modal" id="stashModal" role="dialog" aria-label="Baú">
+  <div class="sheet" style="width:min(600px,100%)">
+    <h2>BAÚ <button class="x" data-close>✕</button></h2>
+    <div class="stashinfo"><span id="stashCount"></span><span>clique num item para ver, equipar ou excluir</span></div>
+    <div class="stash" id="stash"></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+
+<!-- MODAL STATUS -->
+<div class="modal" id="statsModal" role="dialog" aria-label="Status">
+  <div class="sheet" style="width:min(600px,100%)">
+    <h2>STATUS DO MAGO <button class="x" data-close>✕</button></h2>
+    <div class="stgrid">
+      <div class="stcol"><h3>ATAQUE</h3><div id="stAtk"></div></div>
+      <div class="stcol"><h3>DEFESA</h3><div id="stDef"></div></div>
+    </div>
+    <div id="stAttrs"></div>
   </div>
 </div>
 
@@ -224,7 +304,7 @@
     <h2>HISTÓRICO <button class="x" data-close>✕</button></h2>
     <div class="stats" id="histStats"></div>
     <div class="cal" id="cal"></div>
-    <div class="legend">menos <i style="background:#13121c"></i><i style="background:#1f3a1a"></i><i style="background:#2f6224"></i><i style="background:#4f9a32"></i><i style="background:#7ee04a"></i> mais · <i style="background:var(--gold);width:4px;height:4px"></i> comentário</div>
+    <div class="legend">menos <i style="background:#13121c"></i><i style="background:#1f3a1a"></i><i style="background:#2f6224"></i><i style="background:#4f9a32"></i><i style="background:#7ee04a"></i> mais · <i style="background:var(--gold2);width:4px;height:4px"></i> comentário</div>
     <div class="daybox">
       <div class="t" id="dayTitle"></div>
       <div class="s" id="daySummary"></div>
@@ -235,110 +315,59 @@
 </div>
 
 <script>
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const dayKey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>dayKey(new Date());
+
 /* =========================================================
    DADOS (etapa 2: trocar load/save por Google Sheets)
    ========================================================= */
 const KEY="pomodoro-potato-v2";
-const DEFAULT={ missions:0, boxes:0, focusCount:0, sessions:[], notes:{}, equip:{}, bag:[] };
-let DB = load();
+const BLANK=()=>({ xp:0, missions:0, boxes:[], focusCount:0, sessions:[], notes:{}, tasks:{}, equip:{}, bag:[], lastDaily:"", nextId:1 });
+let DB;
 function load(){
-  let d=null;
-  try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
-  if(!d){
-    d=JSON.parse(JSON.stringify(DEFAULT));
-    try{ // migra versão anterior
-      const m=localStorage.getItem("pomo-mago-missions"); if(m){ d.missions=+m; d.boxes=+m; }
-    }catch(e){}
-  }
-  return Object.assign(JSON.parse(JSON.stringify(DEFAULT)), d);
+  let d=null; try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  d=Object.assign(BLANK(), d||{});
+  // migrações de versões anteriores
+  if(typeof d.boxes==="number") d.boxes=Array(d.boxes).fill("normal");
+  if(!d.xp && d.missions) d.xp=MISSIONS_XP(d.missions);
+  if(!d.tasks) d.tasks={};
+  const old=Object.values(d.equip||{}).filter(it=>it && typeof it==="object" && !it.id);
+  if(old.length){ d.equip={}; old.forEach(it=>{ const n=makeItem(it.slot,it.rarity,d); d.bag.push(n); d.equip[n.slot]=n.id; }); }
+  d.bag=d.bag.filter(it=>it && it.id);
+  return d;
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
-const today=()=>{const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 
 /* =========================================================
    SOM
    ========================================================= */
 let audio=null;
-function tone(seq){
-  try{
-    audio=audio||new (window.AudioContext||window.webkitAudioContext)();
-    seq.forEach(([f,t,d])=>{
-      const o=audio.createOscillator(), g=audio.createGain();
-      o.type="square"; o.frequency.value=f; o.connect(g); g.connect(audio.destination);
-      g.gain.setValueAtTime(.07,audio.currentTime+t); g.gain.setValueAtTime(0,audio.currentTime+t+d);
-      o.start(audio.currentTime+t); o.stop(audio.currentTime+t+d+.01);
-    });
-  }catch(e){}
-}
-const SND={
-  done:()=>tone([[660,0,.12],[880,.16,.12],[990,.32,.12],[1320,.5,.25]]),
-  xp:()=>tone([[523,0,.08],[784,.09,.12]]),
-  open:(r)=>tone(r==="epic"?[[523,0,.1],[659,.1,.1],[784,.2,.1],[1047,.3,.1],[1319,.4,.3]]:r==="rare"?[[523,0,.1],[784,.12,.1],[1047,.24,.25]]:[[440,0,.1],[660,.12,.2]])
-};
+function tone(seq){ try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+  seq.forEach(([f,t,d])=>{ const o=audio.createOscillator(), g=audio.createGain(); o.type="square"; o.frequency.value=f; o.connect(g); g.connect(audio.destination);
+    g.gain.setValueAtTime(.07,audio.currentTime+t); g.gain.setValueAtTime(0,audio.currentTime+t+d); o.start(audio.currentTime+t); o.stop(audio.currentTime+t+d+.01); }); }catch(e){} }
+const SND={ done:()=>tone([[660,0,.12],[880,.16,.12],[990,.32,.12],[1320,.5,.25]]), xp:()=>tone([[523,0,.08],[784,.09,.12]]),
+  lvl:()=>tone([[523,0,.1],[659,.1,.1],[784,.2,.1],[1047,.32,.3]]),
+  open:r=>tone(r==="epic"?[[523,0,.1],[659,.1,.1],[784,.2,.1],[1047,.3,.1],[1319,.4,.3]]:r==="rare"?[[523,0,.1],[784,.12,.1],[1047,.24,.25]]:[[440,0,.1],[660,.12,.2]]) };
 
 /* =========================================================
-   RELÓGIO
+   NÍVEIS 1–30
    ========================================================= */
-const MODES={focus:{min:25,label:"FOCO",next:"rest"}, rest:{min:5,label:"PAUSA",next:"focus"}};
-const SEG=30;
-const RING=["#3fc79a","#45cf8a","#54d474","#6dd85a","#8ad84a","#a6d640","#c2d23a","#d8c936","#e6b932","#ebaa30","#e89a2e","#e08a2c"];
-const segs=[];
-(function(){
-  const svg=document.getElementById("ring"), cx=120, cy=120, r1=96, r2=112, gap=3.2;
-  const p=(r,a)=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
-  for(let i=0;i<SEG;i++){
-    const a0=i/SEG*360-90+gap/2, a1=(i+1)/SEG*360-90-gap/2;
-    const [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
-    const el=document.createElementNS("http://www.w3.org/2000/svg","path");
-    el.setAttribute("d",`M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4} Z`);
-    el.dataset.c=RING[Math.floor(i/SEG*RING.length)]; svg.appendChild(el); segs.push(el);
-  }
-})();
-const $=id=>document.getElementById(id);
-let mode="focus", total=25*60, left=total, endAt=null, tick=null;
-const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
-function drawClock(){
-  $("clock").textContent=fmt(left);
-  $("mode").textContent=MODES[mode].label;
-  $("mode").style.color=mode==="focus"?"#7ee04a":"#e8c66a";
-  const lit=Math.ceil(SEG*left/total);
-  segs.forEach((s,i)=>{ const on=i<lit; s.setAttribute("fill",on?s.dataset.c:"#1c1a26"); s.style.filter=on&&tick?`drop-shadow(0 0 3px ${s.dataset.c})`:"none"; });
-  const cyc=DB.focusCount%4; $("toms").innerHTML="";
-  for(let i=0;i<4;i++){ const t=document.createElement("i"); t.className="tom"+(i<cyc?"":" off"); $("toms").appendChild(t); }
-  $("pomoBox").textContent=`🍅 ${cyc}/4 para a próxima caixa`;
-  document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
-  document.title=(tick?fmt(left)+" · ":"")+"Pomodoro-potato";
+const MAXLV=30;
+const XP_GAIN={ pomodoro:25, task:50 };
+const needFor=lv=>100+20*(lv-1);               // XP para ir do nível lv ao lv+1
+function levelInfo(xp){ let lv=1; while(lv<MAXLV && xp>=needFor(lv)){ xp-=needFor(lv); lv++; } return {lv, into:xp, need:lv<MAXLV?needFor(lv):0}; }
+const stageOf=lv=>lv>=20?2:lv>=10?1:0;
+const RANKS=["APRENDIZ","FEITICEIRO","ARQUIMAGO"];
+function gainXP(n, label){
+  const before=levelInfo(DB.xp).lv; DB.xp=Math.max(0,DB.xp+n); const after=levelInfo(DB.xp).lv;
+  if(n>0){ if(after>before){ pop("LEVEL "+after+"!"); SND.lvl(); } else { pop("+"+n+" XP"+(label?" "+label:"")); SND.xp(); } }
 }
-function drawNow(){ const d=new Date(); $("now").textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); $("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()]; }
-function stop(){clearInterval(tick); tick=null; endAt=null; $("startIc").textContent="▶"}
-function setMode(m){stop(); mode=m; total=MODES[m].min*60; left=total; drawClock()}
-function step(){
-  left=Math.max(0,Math.round((endAt-Date.now())/1000));
-  if(left===0){
-    SND.done();
-    if(mode==="focus"){
-      const d=new Date();
-      DB.sessions.push({date:today(), time:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"), min:MODES.focus.min});
-      DB.focusCount++;
-      if(DB.focusCount%4===0){ DB.boxes++; pop("+1 📦"); }
-      save(); drawHero();
-    }
-    setMode(MODES[mode].next); return;
-  }
-  drawClock();
-}
-$("start").onclick=()=>{
-  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume()}catch(e){}
-  if(tick){stop(); drawClock(); return}
-  endAt=Date.now()+left*1000; tick=setInterval(step,250); $("startIc").textContent="❚❚"; drawClock();
-};
-$("reset").onclick=()=>setMode(mode);
-document.querySelectorAll(".key[data-mode]").forEach(k=>k.onclick=()=>setMode(k.dataset.mode));
 
 /* =========================================================
-   MISSÕES, XP E NÍVEIS
+   MISSÕES (copiadas do Notion; etapa 2: sincronizar)
    ========================================================= */
-/* copiadas da base "Missões" do Notion (etapa 2: sincronizar ao vivo) */
 const NOTION="https://app.notion.com/p/";
 const MISSIONS=[
   ["1. O que é uma skill",50,"41327fd5e41f81689d69cd92b4e87100"],
@@ -349,63 +378,55 @@ const MISSIONS=[
   ["6. Teste: com vs. sem a skill",100,"41327fd5e41f81dab95acee54bdb83e3"],
   ["7. Chefão: skill v2 em uso real",200,"41327fd5e41f810282d4e70800cf0d30"]
 ];
-const MAX=650;
-const xpOf=n=>MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0);
-const stageOf=xp=>xp>=450?2:xp>=175?1:0;
-const RANKS=["APRENDIZ","FEITICEIRO","ARQUIMAGO"];
+function MISSIONS_XP(n){ return MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0); }
 
 /* =========================================================
-   LOOT
+   TAREFAS DIÁRIAS (da agenda; etapa 2: ler do Google Calendar)
+   ========================================================= */
+const DAILY_TASKS=[["home","Home Tasks","09:30"],["python","Python for Data Science","16:15"]];
+function drawTasks(){
+  const done=DB.tasks[today()]||[];
+  $("taskList").innerHTML=DAILY_TASKS.map(([id,name,h])=>`<div class="task${done.includes(id)?" done":""}" data-id="${id}">
+    <span class="cb">${done.includes(id)?"✔":""}</span><span>${h} · ${name}</span><span class="xpv">+${XP_GAIN.task} XP</span></div>`).join("");
+  $("taskCount").textContent=done.length+"/"+DAILY_TASKS.length;
+  document.querySelectorAll(".task").forEach(el=>el.onclick=()=>{
+    const id=el.dataset.id, k=today(), list=DB.tasks[k]=DB.tasks[k]||[];
+    if(list.includes(id)){ list.splice(list.indexOf(id),1); gainXP(-XP_GAIN.task); }
+    else { list.push(id); gainXP(XP_GAIN.task); }
+    save(); drawAll();
+  });
+}
+const tasksDone=()=>Object.values(DB.tasks).reduce((a,l)=>a+l.length,0);
+
+/* =========================================================
+   ITENS E LOOT
    ========================================================= */
 const SLOTS=["hat","cape","gloves","boots","staff","amulet"];
 const SLOT_PT={hat:"Chapéu",cape:"Capa",gloves:"Luvas",boots:"Botas",staff:"Cajado",amulet:"Amuleto"};
+const SLOT_ATTR={hat:"int",staff:"int",cape:"str",gloves:"agi",boots:"agi",amulet:"all"};
 const RAR={
-  common:{pt:"Comum", color:"#a7a3b0", main:"#6b6578", dark:"#4a4556", pw:[5,10],  chance:.65, adj:"de Aprendiz"},
-  rare:  {pt:"Raro",  color:"#4a8cf0", main:"#2f5fb3", dark:"#1f3f7a", pw:[15,25], chance:.28, adj:"Arcano"},
-  epic:  {pt:"Épico", color:"#b05cf0", main:"#7a35b8", dark:"#4f2079", pw:[35,50], chance:.07, adj:"Astral"}
+  common:{pt:"Comum", color:"#a7a3b0", main:"#6b6578", dark:"#4a4556", r:[2,4],  all:[1,2], adj:{hat:"de Aprendiz",cape:"de Lã",gloves:"de Couro",boots:"de Viagem",staff:"de Carvalho",amulet:"de Cobre"}},
+  rare:  {pt:"Raro",  color:"#4a8cf0", main:"#2f5fb3", dark:"#1f3f7a", r:[5,8],  all:[3,4], adj:{hat:"Arcano",cape:"Rúnica",gloves:"do Feitiço",boots:"Velozes",staff:"de Jade",amulet:"de Safira"}},
+  epic:  {pt:"Épico", color:"#b05cf0", main:"#7a35b8", dark:"#4f2079", r:[10,15],all:[6,8], adj:{hat:"Astral",cape:"do Vazio",gloves:"do Arquimago",boots:"Etéreas",staff:"Esmeralda",amulet:"Eterno"}}
 };
-function rollItem(){
-  const r=Math.random(); const rarity = r<RAR.epic.chance?"epic": r<RAR.epic.chance+RAR.rare.chance?"rare":"common";
-  const slot=SLOTS[Math.floor(Math.random()*SLOTS.length)];
-  const [a,b]=RAR[rarity].pw; const pw=a+Math.floor(Math.random()*(b-a+1));
-  return {slot, rarity, pw, name:`${SLOT_PT[slot]} ${RAR[rarity].adj}`};
+const ODDS={ normal:[.65,.28,.07], daily:[.40,.45,.15] };
+const ri=([a,b])=>a+Math.floor(Math.random()*(b-a+1));
+function makeItem(slot, rarity, db){
+  const R=RAR[rarity], a=SLOT_ATTR[slot], st={str:0,agi:0,int:0};
+  if(a==="all"){ st.str=ri(R.all); st.agi=ri(R.all); st.int=ri(R.all); } else st[a]=ri(R.r);
+  const target=db||DB;
+  return { id:target.nextId++, slot, rarity, st, name:`${SLOT_PT[slot]} ${R.adj[slot]}`, date:today() };
 }
-const basePower=()=>10+stageOf(xpOf(DB.missions))*15+DB.missions*5;
-const power=()=>basePower()+SLOTS.reduce((s,k)=>s+(DB.equip[k]?DB.equip[k].pw:0),0);
+function rollItem(kind){
+  const [c,r]=ODDS[kind], x=Math.random();
+  const rarity = x<c?"common": x<c+r?"rare":"epic";
+  return makeItem(SLOTS[Math.floor(Math.random()*SLOTS.length)], rarity);
+}
+const itemById=id=>DB.bag.find(i=>i.id===id);
+const sumSt=it=>it.st.str+it.st.agi+it.st.int;
+function equipped(){ return SLOTS.map(s=>itemById(DB.equip[s])).filter(Boolean); }
 
-/* =========================================================
-   MAGO (imagens por nível + partículas)
-   ========================================================= */
-const MAGE_IMG=["img/mago1.png","img/mago2.png","img/mago3.png"];
-const MAGE_H=[220,244,256];
-let shownStage=-1;
-function drawMage(){
-  const stage=stageOf(xpOf(DB.missions)), img=$("mageImg");
-  if(stage!==shownStage){
-    img.src=MAGE_IMG[stage]; img.style.height=MAGE_H[stage]+"px";
-    if(shownStage!==-1){ const p=$("portrait"); p.classList.remove("lvlup"); void p.offsetWidth; p.classList.add("lvlup"); }
-    shownStage=stage;
-    $("portrait").classList.remove("st0","st1","st2"); $("portrait").classList.add("st"+stage);
-  }
-}
-const parts=[];
-function fxLoop(){
-  const cv=$("fx"), ctx=cv.getContext("2d"), stage=stageOf(xpOf(DB.missions));
-  const want=[6,12,22][stage];
-  while(parts.length<want) parts.push({x:20+Math.random()*258, y:180+Math.random()*80, v:.3+Math.random()*.7, s:Math.random()<.3?4:2, c:Math.random()<.25?"#e8c66a":(stage===2&&Math.random()<.3?"#5ff0d0":"#7ee04a"), a:1});
-  while(parts.length>want) parts.pop();
-  ctx.clearRect(0,0,cv.width,cv.height);
-  parts.forEach(p=>{
-    p.y-=p.v; p.a=Math.max(0,Math.min(1,(p.y-20)/120));
-    if(p.y<10){ p.y=200+Math.random()*60; p.x=20+Math.random()*258; }
-    ctx.globalAlpha=p.a*.9; ctx.fillStyle=p.c; ctx.fillRect(Math.round(p.x),Math.round(p.y),p.s,p.s);
-  });
-  ctx.globalAlpha=1;
-  requestAnimationFrame(fxLoop);
-}
-requestAnimationFrame(fxLoop);
-
-/* ícones dos slots (12x12) */
+/* ícones (troca automática pela arte em img/itens/<slot>-<raridade>.png quando existir) */
 const ICONS={
   hat:   ["......XX....",".....XXX....","....XXXX....","....XXX.....","...XXXXX....","...XXXXX....","..XXXXXXX...","..YYYYYYY...","XXXXXXXXXXX.","XXXXXXXXXXX.","............","............"],
   cape:  ["...YYYYYY...","..XXXXXXXX..","..XXXXXXXX..",".XXXXXXXXXX.",".XXXXXXXXXX.",".XXXXXXXXXX.","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXX.XX.XXXX","XXX..XX..XXX","............"],
@@ -414,130 +435,252 @@ const ICONS={
   staff: ["........YYY.",".......YWYY.","........YYY.",".......X.X..","......XX....",".....XX.....","....XX......","...XX.......","..XX........",".XX.........","XX..........","............"],
   amulet:["..Y......Y..","...Y....Y...","....Y..Y....",".....YY.....","....XXXX....","...XXWXXX...","...XXXXXX...","...XXXXXX...","....XXXX....",".....XX.....","............","............"]
 };
-function drawIcon(cv, slot, rarity, size){
-  const ctx=cv.getContext("2d"), px=size/12, R=rarity?RAR[rarity]:{main:"#6b6578",color:"#8a8496"};
-  ctx.clearRect(0,0,cv.width,cv.height);
-  const map={X:R.main, Y:rarity?R.color:"#8a8496", W:"#ffffff"};
+const ART={};
+SLOTS.forEach(s=>Object.keys(RAR).forEach(r=>{ const im=new Image(); im.onload=()=>{ ART[s+"-"+r]=im.src; drawAll(); }; im.src=`img/itens/${s}-${r}.png`; }));
+function iconEl(slot, rarity, size){
+  if(rarity && ART[slot+"-"+rarity]){ const im=document.createElement("img"); im.src=ART[slot+"-"+rarity]; im.width=im.height=size; return im; }
+  const cv=document.createElement("canvas"); cv.width=cv.height=size; const ctx=cv.getContext("2d"), px=size/12;
+  const R=rarity?RAR[rarity]:{main:"#4a4556"}; const map={X:R.main, Y:rarity?R.color:"#5d5770", W:"#fff"};
   ICONS[slot].forEach((row,y)=>[...row].forEach((c,x)=>{ if(map[c]){ ctx.fillStyle=map[c]; ctx.fillRect(x*px,y*px,px,px); } }));
+  return cv;
+}
+const stTxt=st=>["str","agi","int"].filter(k=>st[k]).map(k=>`+${st[k]} ${({str:"FOR",agi:"AGI",int:"INT"})[k]}`).join(" · ");
+
+/* =========================================================
+   ATRIBUTOS (modelo Dota 2; o mago é herói de INTELIGÊNCIA)
+   ========================================================= */
+const BASE={str:[18,1.8], agi:[15,1.4], int:[22,3.0]};   // [base, ganho por nível]
+function activeDays(){ return new Set(DB.sessions.map(s=>s.date)).size; }
+function attributes(){
+  const lv=levelInfo(DB.xp).lv, it={str:0,agi:0,int:0};
+  equipped().forEach(i=>{ it.str+=i.st.str; it.agi+=i.st.agi; it.int+=i.st.int; });
+  const act={ str:activeDays(), agi:Math.floor(DB.focusCount/4), int:tasksDone()+DB.missions*2 };
+  const out={};
+  ["str","agi","int"].forEach(k=>{ const lvl=BASE[k][0]+BASE[k][1]*(lv-1); out[k]={lvl, act:act[k], item:it[k], total:Math.round(lvl+act[k]+it[k])}; });
+  return out;
+}
+function derived(a){
+  const S=a.str.total, A=a.agi.total, I=a.int.total;
+  return {
+    hp: Math.round(120+S*22), hpReg:(S*0.1).toFixed(2),
+    armor:(A*0.167).toFixed(1), atkSpd:Math.round(100+A),
+    mana: Math.round(75+I*12), manaReg:(I*0.05).toFixed(2),
+    magRes: Math.min(70, 25+I*0.1).toFixed(1), dmg:[30+I, 36+I]
+  };
 }
 
 /* =========================================================
-   CARD DO MAGO
+   RELÓGIO
    ========================================================= */
+const MODES={focus:{min:25,label:"FOCO",next:"rest"}, rest:{min:5,label:"PAUSA",next:"focus"}};
+const SEG=30, RING=["#3fc79a","#45cf8a","#54d474","#6dd85a","#8ad84a","#a6d640","#c2d23a","#d8c936","#e6b932","#ebaa30","#e89a2e","#e08a2c"];
+const segs=[];
+(function(){ const svg=$("ring"), cx=120, cy=120, r1=96, r2=112, gap=3.2, p=(r,a)=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
+  for(let i=0;i<SEG;i++){ const a0=i/SEG*360-90+gap/2, a1=(i+1)/SEG*360-90-gap/2, [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
+    const el=document.createElementNS("http://www.w3.org/2000/svg","path"); el.setAttribute("d",`M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4} Z`);
+    el.dataset.c=RING[Math.floor(i/SEG*RING.length)]; svg.appendChild(el); segs.push(el); } })();
+let mode="focus", total=25*60, left=total, endAt=null, tick=null;
+const fmt=s=>pad(Math.floor(s/60))+":"+pad(s%60);
+function drawClock(){
+  $("clock").textContent=fmt(left); $("mode").textContent=MODES[mode].label; $("mode").style.color=mode==="focus"?"#7ee04a":"#e8c66a";
+  const lit=Math.ceil(SEG*left/total);
+  segs.forEach((s,i)=>{ const on=i<lit; s.setAttribute("fill",on?s.dataset.c:"#1c1a26"); s.style.filter=on&&tick?`drop-shadow(0 0 3px ${s.dataset.c})`:"none"; });
+  const cyc=DB.focusCount%4; $("toms").innerHTML=""; for(let i=0;i<4;i++){ const t=document.createElement("i"); t.className="tom"+(i<cyc?"":" off"); $("toms").appendChild(t); }
+  $("pomoBox").textContent = (DB.lastDaily===today() ? "✔ Baú diário já ganho hoje" : "🎁 Faça o 1º pomodoro do dia: baú diário") + ` · 🍅 ${cyc}/4 p/ caixa`;
+  document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
+  document.title=(tick?fmt(left)+" · ":"")+"Pomodoro-potato";
+}
+function drawNow(){ const d=new Date(); $("now").textContent=pad(d.getHours())+":"+pad(d.getMinutes()); $("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()]; }
+function stop(){ clearInterval(tick); tick=null; endAt=null; $("startIc").textContent="▶"; }
+function setMode(m){ stop(); mode=m; total=MODES[m].min*60; left=total; drawClock(); }
+function step(){
+  left=Math.max(0,Math.round((endAt-Date.now())/1000));
+  if(left===0){
+    SND.done();
+    if(mode==="focus"){
+      const d=new Date(); DB.sessions.push({date:today(), time:pad(d.getHours())+":"+pad(d.getMinutes()), min:MODES.focus.min});
+      DB.focusCount++;
+      if(DB.lastDaily!==today()){ DB.lastDaily=today(); DB.boxes.unshift("daily"); setTimeout(()=>pop("🎁 BAÚ DIÁRIO!"),1500); }
+      if(DB.focusCount%4===0) DB.boxes.push("normal");
+      gainXP(XP_GAIN.pomodoro); save(); drawAll();
+    }
+    setMode(MODES[mode].next); return;
+  }
+  drawClock();
+}
+$("start").onclick=()=>{ try{audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume()}catch(e){}
+  if(tick){ stop(); drawClock(); return; } endAt=Date.now()+left*1000; tick=setInterval(step,250); $("startIc").textContent="❚❚"; drawClock(); };
+$("reset").onclick=()=>setMode(mode);
+document.querySelectorAll(".key[data-mode]").forEach(k=>k.onclick=()=>setMode(k.dataset.mode));
+
+/* =========================================================
+   MAGO
+   ========================================================= */
+const MAGE_IMG=["img/mago1.png","img/mago2.png","img/mago3.png"], MAGE_H=[220,244,256];
+let shownStage=-1;
+function drawMage(){
+  const st=stageOf(levelInfo(DB.xp).lv), img=$("mageImg");
+  if(st!==shownStage){ img.src=MAGE_IMG[st]; img.style.height=MAGE_H[st]+"px";
+    if(shownStage!==-1){ const p=$("portrait"); p.classList.remove("lvlup"); void p.offsetWidth; p.classList.add("lvlup"); }
+    shownStage=st; $("portrait").classList.remove("st0","st1","st2"); $("portrait").classList.add("st"+st); }
+}
+const parts=[];
+function fxLoop(){
+  const cv=$("fx"), ctx=cv.getContext("2d"), st=stageOf(levelInfo(DB.xp).lv), want=[6,12,22][st];
+  while(parts.length<want) parts.push({x:20+Math.random()*258, y:180+Math.random()*80, v:.3+Math.random()*.7, s:Math.random()<.3?4:2, c:Math.random()<.25?"#e8c66a":(st===2&&Math.random()<.3?"#5ff0d0":"#7ee04a")});
+  while(parts.length>want) parts.pop();
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{ p.y-=p.v; if(p.y<10){ p.y=200+Math.random()*60; p.x=20+Math.random()*258; }
+    ctx.globalAlpha=Math.max(0,Math.min(1,(p.y-20)/120))*.9; ctx.fillStyle=p.c; ctx.fillRect(Math.round(p.x),Math.round(p.y),p.s,p.s); });
+  ctx.globalAlpha=1; requestAnimationFrame(fxLoop);
+}
+requestAnimationFrame(fxLoop);
+
 function drawSlots(){
   const el=$("slots"); el.innerHTML="";
-  SLOTS.forEach(s=>{
-    const it=DB.equip[s], d=document.createElement("div");
-    d.className="slot"+(it?" has "+it.rarity:"");
-    d.title=it?`${it.name} · ${RAR[it.rarity].pt} · +${it.pw} poder`:`${SLOT_PT[s]}: vazio`;
-    const c=document.createElement("canvas"); c.width=c.height=30; drawIcon(c,s,it&&it.rarity,30); d.appendChild(c);
-    if(it){ const p=document.createElement("span"); p.className="pw"; p.textContent="+"+it.pw; d.appendChild(p); }
-    el.appendChild(d);
-  });
+  SLOTS.forEach(s=>{ const it=itemById(DB.equip[s]), d=document.createElement("div");
+    d.className="slot"+(it?" has "+it.rarity:""); d.title=it?`${it.name} · ${RAR[it.rarity].pt} · ${stTxt(it.st)}`:`${SLOT_PT[s]}: vazio`;
+    d.appendChild(iconEl(s,it&&it.rarity,30)); d.style.cursor="pointer"; d.onclick=()=>{ openStash(it?it.id:null); }; el.appendChild(d); });
 }
 function drawHero(){
-  const xp=xpOf(DB.missions), stage=stageOf(xp);
-  $("lv").textContent="Nv. "+(stage+1); $("rank").textContent=RANKS[stage];
-  $("xpbar").style.width=(xp/MAX*100)+"%"; $("xptext").textContent=xp+" / "+MAX+" XP";
-  $("power").textContent=power();
+  const L=levelInfo(DB.xp), st=stageOf(L.lv);
+  $("lv").textContent="Nv. "+L.lv; $("rank").textContent=RANKS[st];
+  $("xpbar").style.width=(L.lv>=MAXLV?100:L.into/L.need*100)+"%";
+  $("xptext").textContent= L.lv>=MAXLV ? "NÍVEL MÁXIMO" : `${L.into} / ${L.need} XP · próxima forma no Nv. ${st===0?10:st===1?20:"—"}`;
+  const a=attributes(), dv=derived(a);
+  $("attrs").innerHTML=`<div class="at str"><b>${a.str.total}</b>FORÇA</div><div class="at agi"><b>${a.agi.total}</b>AGILIDADE</div><div class="at int"><b>${a.int.total}</b>INTELIG.</div><div class="at dmg"><b>${dv.dmg[0]}</b>DANO</div>`;
   const up=$("up");
-  if(DB.missions>=MISSIONS.length){ up.disabled=true; up.textContent="COMPLETO"; $("next").textContent="Todas as missões concluídas."; }
-  else { const m=MISSIONS[DB.missions]; up.disabled=false; up.textContent="⬆ UPAR +"+m[1];
+  if(DB.missions>=MISSIONS.length){ up.disabled=true; up.textContent="CURSO OK"; $("next").textContent="Todas as missões do curso concluídas."; }
+  else { const m=MISSIONS[DB.missions]; up.disabled=false; up.textContent="⬆ MISSÃO +"+m[1];
     $("next").innerHTML=`📜 Próxima: <a href="${NOTION+m[2]}" target="_blank" rel="noopener">${m[0]}</a>`; }
-  $("openLoot").textContent="📦 "+DB.boxes; $("openLoot").disabled=DB.boxes<1;
-  drawSlots(); drawClock();
-}
-function drawMissions(){
-  $("mlist").innerHTML = MISSIONS.map((m,i)=>`<div class="mi${i<DB.missions?" ok":""}">
-    <a href="${NOTION+m[2]}" target="_blank" rel="noopener">${i<DB.missions?"✔":"▢"} ${m[0]}</a><span class="xpv">${m[1]} XP</span></div>`).join("");
+  $("openLoot").textContent="📦 "+DB.boxes.length; $("openLoot").disabled=DB.boxes.length<1;
+  drawSlots();
 }
 function pop(text){ const f=$("float"); f.textContent=text; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
-$("up").onclick=()=>{
-  if(DB.missions>=MISSIONS.length) return;
-  const before=stageOf(xpOf(DB.missions));
-  DB.missions++; DB.boxes++; save();
-  const after=stageOf(xpOf(DB.missions));
-  pop(after>before?"LEVEL UP!":"+"+MISSIONS[DB.missions-1][1]+" XP  +1 📦");
-  SND.xp(); drawHero(); drawMage();
-};
-$("undo").onclick=()=>{ if(DB.missions>0){ DB.missions--; if(DB.boxes>0) DB.boxes--; save(); drawHero(); drawMage(); } };
+function drawAll(){ drawHero(); drawMage(); drawClock(); drawTasks(); }
+
+$("up").onclick=()=>{ if(DB.missions>=MISSIONS.length) return; const m=MISSIONS[DB.missions]; DB.missions++; DB.boxes.push("normal"); gainXP(m[1],"+1 📦"); save(); drawAll(); };
+$("undo").onclick=()=>{ if(DB.missions<1) return; DB.missions--; DB.xp=Math.max(0,DB.xp-MISSIONS[DB.missions][1]); const i=DB.boxes.lastIndexOf("normal"); if(i>-1) DB.boxes.splice(i,1); save(); drawAll(); };
 
 /* =========================================================
-   MODAL: CAIXA DE LOOT
+   MODAIS
    ========================================================= */
 function openModal(id){ $(id).classList.add("open"); }
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("open"); }));
 
-function drawChest(open, rarity){
+/* --- caixa de loot --- */
+function drawChest(open, rarity, daily){
   const cv=$("chest"), ctx=cv.getContext("2d"), P=8; ctx.clearRect(0,0,cv.width,cv.height);
   const r=(x,y,w,h,c)=>{ctx.fillStyle=c; ctx.fillRect(x*P,y*P,w*P,h*P)};
+  const wood=daily?["#3a5a8a","#5578b0","#7a9ad0"]:["#7a5432","#8f6a42","#b58a58"];
   if(open && rarity){ const c=RAR[rarity].color; ctx.globalAlpha=.35; r(5,0,8,7,c); ctx.globalAlpha=.6; r(7,1,4,6,c); ctx.globalAlpha=1; }
-  r(2,8,14,7,"#100d16"); r(3,9,12,5,"#7a5432"); r(3,9,12,1,"#9a6d42"); r(3,11,12,1,"#c9a75a"); r(8,10,2,3,"#e8c66a");
-  if(open){ r(2,5,14,3,"#100d16"); r(3,6,12,1,"#5a3d24"); }
-  else { r(2,4,14,5,"#100d16"); r(3,5,12,3,"#8f6a42"); r(3,5,12,1,"#b58a58"); r(3,7,12,1,"#c9a75a"); r(8,6,2,2,"#e8c66a"); }
+  r(2,8,14,7,"#100d16"); r(3,9,12,5,wood[0]); r(3,9,12,1,wood[1]); r(3,11,12,1,"#c9a75a"); r(8,10,2,3,"#e8c66a");
+  if(open){ r(2,5,14,3,"#100d16"); r(3,6,12,1,"#2a2030"); }
+  else { r(2,4,14,5,"#100d16"); r(3,5,12,3,wood[1]); r(3,5,12,1,wood[2]); r(3,7,12,1,"#c9a75a"); r(8,6,2,2,"#e8c66a"); }
 }
+function prepChest(){ const k=DB.boxes[0]; $("lootTitle").textContent=k==="daily"?"BAÚ DIÁRIO 🎁":"CAIXA DE LOOT"; drawChest(false,null,k==="daily"); }
 let opening=false;
-$("openLoot").onclick=()=>{ if(DB.boxes<1) return; $("reveal").innerHTML=""; $("lootHint").textContent="Clique na caixa para abrir"; drawChest(false); openModal("lootModal"); };
+$("openLoot").onclick=()=>{ if(!DB.boxes.length) return; $("reveal").innerHTML=""; $("lootHint").textContent="Clique na caixa para abrir"; prepChest(); openModal("lootModal"); };
 $("chest").onclick=()=>{
-  if(opening || DB.boxes<1) return; opening=true;
-  const ch=$("chest"); ch.classList.add("shake"); $("lootHint").textContent="...";
+  if(opening || !DB.boxes.length) return;
+  if(DB.bag.length>=100){ $("lootHint").textContent="Baú cheio (100/100). Exclua itens para abrir."; return; }
+  opening=true; const ch=$("chest"); ch.classList.add("shake"); $("lootHint").textContent="...";
   setTimeout(()=>{
     ch.classList.remove("shake");
-    const it=rollItem(); DB.boxes--;
-    const cur=DB.equip[it.slot]; const better=!cur || it.pw>cur.pw;
-    if(better) DB.equip[it.slot]=it; DB.bag.push(it); save();
-    drawChest(true, it.rarity); SND.open(it.rarity);
+    const kind=DB.boxes.shift(), it=rollItem(kind); DB.bag.push(it);
+    const cur=itemById(DB.equip[it.slot]), better=!cur || sumSt(it)>sumSt(cur);
+    if(better) DB.equip[it.slot]=it.id; save();
+    drawChest(true,it.rarity,kind==="daily"); SND.open(it.rarity);
     const R=RAR[it.rarity];
-    $("reveal").innerHTML=`<canvas id="ric" width="48" height="48" style="image-rendering:pixelated"></canvas>
-      <div class="name" style="color:${R.color}">${it.name}</div>
-      <div class="meta">${R.pt} · +${it.pw} poder<br>${better?"✔ Equipado no mago":"Você já tem um "+SLOT_PT[it.slot].toLowerCase()+" melhor (+"+cur.pw+"). Guardado na coleção."}</div>`;
-    drawIcon($("ric"), it.slot, it.rarity, 48);
-    $("lootHint").textContent = DB.boxes>0 ? `Ainda tem ${DB.boxes} 📦 · clique de novo` : "";
-    if(DB.boxes>0) setTimeout(()=>drawChest(false),1600);
-    drawHero(); drawMage(); opening=false;
+    $("reveal").innerHTML=`<div id="ric" style="display:flex;justify-content:center"></div><div class="name" style="color:${R.color}">${it.name}</div>
+      <div class="meta">${R.pt} · ${stTxt(it.st)}<br>${better?"✔ Equipado no mago":"Guardado no baú (o equipado é melhor)"}</div>`;
+    $("ric").appendChild(iconEl(it.slot,it.rarity,48));
+    $("lootHint").textContent=DB.boxes.length?`Ainda tem ${DB.boxes.length} 📦 · clique de novo`:"";
+    if(DB.boxes.length) setTimeout(prepChest,1600);
+    drawAll(); opening=false;
   },550);
 };
 
-/* =========================================================
-   MODAL: HISTÓRICO
-   ========================================================= */
-const WEEKS=16;
-let selDay=today();
-function dayKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+/* --- baú (stash) de 100 slots --- */
+let selItem=null, confirmDel=false;
+function openStash(id){ selItem=id; confirmDel=false; drawStash(); openModal("stashModal"); }
+$("openStash").onclick=()=>openStash(null);
+function drawStash(){
+  const grid=$("stash"); grid.innerHTML="";
+  const items=[...DB.bag].sort((a,b)=>b.id-a.id);
+  $("stashCount").textContent=`${DB.bag.length} / 100`;
+  for(let i=0;i<100;i++){
+    const it=items[i], c=document.createElement("button"); c.className="cell"+(it?" "+it.rarity:"")+(it&&it.id===selItem?" sel":"");
+    if(it){ c.appendChild(iconEl(it.slot,it.rarity,32)); if(DB.equip[it.slot]===it.id){ const e=document.createElement("span"); e.className="eq"; e.textContent="E"; c.appendChild(e); }
+      c.title=it.name; c.onclick=()=>{ selItem=it.id; confirmDel=false; drawStash(); }; }
+    else c.disabled=true;
+    grid.appendChild(c);
+  }
+  const d=$("detail"), it=itemById(selItem);
+  if(!it){ d.innerHTML=`<div class="empty">Nenhum item selecionado.<br>Itens com <b style="color:var(--green)">E</b> estão equipados no mago.</div>`; return; }
+  const R=RAR[it.rarity], isEq=DB.equip[it.slot]===it.id;
+  d.innerHTML=`<div class="ic" id="dic"></div><div><div class="nm" style="color:${R.color}">${it.name}</div>
+    <div class="st">${R.pt} · ${SLOT_PT[it.slot]}<br>${stTxt(it.st)}<br><span style="color:var(--dim)">obtido em ${new Date(it.date+"T12:00").toLocaleDateString("pt-BR")}</span></div>
+    <div class="acts"><button id="eqBtn">${isEq?"DESEQUIPAR":"EQUIPAR"}</button><button class="del${confirmDel?" confirm":""}" id="delBtn">${confirmDel?"CONFIRMAR?":"EXCLUIR"}</button></div></div>`;
+  $("dic").appendChild(iconEl(it.slot,it.rarity,48));
+  $("eqBtn").onclick=()=>{ if(isEq) delete DB.equip[it.slot]; else DB.equip[it.slot]=it.id; save(); drawStash(); drawAll(); };
+  $("delBtn").onclick=()=>{ if(!confirmDel){ confirmDel=true; drawStash(); return; }
+    DB.bag=DB.bag.filter(x=>x.id!==it.id); if(isEq) delete DB.equip[it.slot]; selItem=null; confirmDel=false; save(); drawStash(); drawAll(); };
+}
+
+/* --- status --- */
+$("openStats").onclick=()=>{
+  const a=attributes(), dv=derived(a), L=levelInfo(DB.xp);
+  const kv=(k,v)=>`<div class="kv"><span>${k}</span><span>${v}</span></div>`;
+  $("stAtk").innerHTML=kv("Dano",`${dv.dmg[0]} - ${dv.dmg[1]}`)+kv("Vel. de ataque",dv.atkSpd)+kv("Mana",dv.mana)+kv("Regen. de mana",dv.manaReg)+kv("Nível",L.lv);
+  $("stDef").innerHTML=kv("Vida",dv.hp)+kv("Regen. de vida",dv.hpReg)+kv("Armadura",dv.armor)+kv("Resist. mágica",dv.magRes+"%")+kv("Dias ativos",activeDays());
+  const row=(cls,color,key,name,gives,src)=>{ const x=a[key];
+    return `<div class="attrrow${cls}"><span class="dot" style="background:${color}"></span><div class="tx"><b style="color:${color}">${x.total}</b>${name} <span class="g">(ganha ${BASE[key][1]} por nível)</span><br>
+      = ${gives}<br><span class="src">do nível +${Math.round(x.lvl)} · atividade +${x.act} · itens +${x.item}</span> <span class="g">— ${src}</span></div></div>`; };
+  $("stAttrs").innerHTML=
+    row("","#ff6a4a","str","FORÇA",`${dv.hp} de vida e ${dv.hpReg} de regen. de vida`,"sobe com dias ativos (constância)")+
+    row("","#7ee04a","agi","AGILIDADE",`${dv.armor} de armadura e ${dv.atkSpd} de vel. de ataque`,"sobe a cada 4 pomodoros")+
+    row(" primary","#4ac6ff","int","INTELIGÊNCIA ★",`${dv.mana} de mana, ${dv.manaReg} de regen. e ${dv.magRes}% de resist. mágica · +${a.int.total} de dano (atributo principal)`,"sobe com tarefas e missões");
+  openModal("statsModal");
+};
+
+/* --- missões --- */
+$("openMissions").onclick=()=>{
+  $("mlist").innerHTML=MISSIONS.map((m,i)=>`<div class="mi${i<DB.missions?" ok":""}"><a href="${NOTION+m[2]}" target="_blank" rel="noopener">${i<DB.missions?"✔":"▢"} ${m[0]}</a><span class="xpv">${m[1]} XP</span></div>`).join("");
+  openModal("missModal");
+};
+
+/* --- histórico --- */
+const WEEKS=16; let selDay=today();
 function byDay(){ const m={}; DB.sessions.forEach(s=>{ (m[s.date]=m[s.date]||[]).push(s); }); return m; }
 function drawHist(){
   const m=byDay(), cal=$("cal"); cal.innerHTML="";
-  const end=new Date(); end.setHours(0,0,0,0);
-  const start=new Date(end); start.setDate(end.getDate()-end.getDay()-(WEEKS-1)*7);
+  const end=new Date(); end.setHours(0,0,0,0); const start=new Date(end); start.setDate(end.getDate()-end.getDay()-(WEEKS-1)*7);
   for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-    const k=dayKey(d), n=(m[k]||[]).length, b=document.createElement("button");
+    const k=dayKey(d), n=(m[k]||[]).length+((DB.tasks[k]||[]).length), b=document.createElement("button");
     b.className="d"+(n>=6?" l4":n>=4?" l3":n>=2?" l2":n>=1?" l1":"")+(k===selDay?" sel":"")+(DB.notes[k]?" c":"");
-    b.title=`${d.toLocaleDateString("pt-BR")}: ${n} pomodoro(s)`;
-    b.onclick=()=>{ selDay=k; drawHist(); };
-    cal.appendChild(b);
+    b.title=`${d.toLocaleDateString("pt-BR")}: ${(m[k]||[]).length} pomodoro(s)`; b.onclick=()=>{ selDay=k; drawHist(); }; cal.appendChild(b);
   }
-  const total=DB.sessions.length, mins=DB.sessions.reduce((a,s)=>a+s.min,0), days=Object.keys(m).length;
-  let streak=0; const c=new Date(end); if(!m[dayKey(c)]) c.setDate(c.getDate()-1);
-  while(m[dayKey(c)]){ streak++; c.setDate(c.getDate()-1); }
-  $("histStats").innerHTML=`<div><b>${total}</b>POMODOROS</div><div><b>${Math.floor(mins/60)}h${String(mins%60).padStart(2,"0")}</b>FOCADO</div><div><b>${days}</b>DIAS</div><div><b>${streak}🔥</b>SEQUÊNCIA</div>`;
-  const list=m[selDay]||[], dt=new Date(selDay+"T12:00:00");
-  $("dayTitle").textContent=dt.toLocaleDateString("pt-BR",{weekday:"long", day:"2-digit", month:"long"}).toUpperCase();
-  $("daySummary").textContent = list.length ? `${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · terminados às ${list.map(s=>s.time).join(", ")}` : "Nenhum pomodoro neste dia.";
+  const total=DB.sessions.length, mins=DB.sessions.reduce((a,s)=>a+s.min,0);
+  let streak=0; const c=new Date(end); if(!m[dayKey(c)]) c.setDate(c.getDate()-1); while(m[dayKey(c)]){ streak++; c.setDate(c.getDate()-1); }
+  $("histStats").innerHTML=`<div><b>${total}</b>POMODOROS</div><div><b>${Math.floor(mins/60)}h${pad(mins%60)}</b>FOCADO</div><div><b>${tasksDone()}</b>TAREFAS</div><div><b>${streak}🔥</b>SEQUÊNCIA</div>`;
+  const list=m[selDay]||[], tk=(DB.tasks[selDay]||[]).map(id=>(DAILY_TASKS.find(t=>t[0]===id)||[0,id])[1]);
+  $("dayTitle").textContent=new Date(selDay+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"}).toUpperCase();
+  $("daySummary").innerHTML=(list.length?`${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · às ${list.map(s=>s.time).join(", ")}`:"Nenhum pomodoro neste dia.")
+    +(tk.length?`<br>Tarefas: ${tk.map(t=>"✔ "+t).join(" · ")}`:"");
   $("dayNote").value=DB.notes[selDay]||"";
 }
 let noteTimer=null;
-$("dayNote").addEventListener("input",()=>{
-  clearTimeout(noteTimer);
-  noteTimer=setTimeout(()=>{ const v=$("dayNote").value.trim(); if(v) DB.notes[selDay]=v; else delete DB.notes[selDay]; save(); $("saved").textContent="✔ salvo"; setTimeout(()=>$("saved").textContent="",1200); drawHistGridOnly(); },500);
-});
-function drawHistGridOnly(){ const v=$("dayNote").value; drawHist(); $("dayNote").value=v; }
-$("openMissions").onclick=()=>{ drawMissions(); openModal("missModal"); };
+$("dayNote").addEventListener("input",()=>{ clearTimeout(noteTimer); noteTimer=setTimeout(()=>{ const v=$("dayNote").value.trim(); if(v) DB.notes[selDay]=v; else delete DB.notes[selDay]; save();
+  $("saved").textContent="✔ salvo"; setTimeout(()=>$("saved").textContent="",1200); const keep=$("dayNote").value; drawHist(); $("dayNote").value=keep; },500); });
 $("openHist").onclick=()=>{ selDay=today(); drawHist(); openModal("histModal"); };
 
 /* ========================================================= */
 drawNow(); setInterval(drawNow,10000);
-drawHero(); drawMage();
+setInterval(()=>{ drawTasks(); drawClock(); },60000); // vira o dia sozinho
+DB=load(); save(); drawAll();
 </script>
+
 </body>
 </html>
