@@ -3,90 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pomodoro da Missão</title>
+<title>Pomodoro-potato</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0c0a14; --panel:#16131f; --edge:#2a2440; --ink:#e9e6f5; --dim:#7d7896;
-    --cyan:#22e6ff; --mag:#ff2fa8; --orange:#ff7a1a; --screen:#05040a;
+    --bg:#0e0d16; --panel:#191724; --panel2:#13121c; --gold:#c9963f; --gold2:#e8c66a; --golddk:#6b4f22;
+    --ink:#ece6da; --dim:#8e88a0; --green:#7ee04a; --green2:#3f8f2a; --screen:#07060b;
+    --common:#a7a3b0; --rare:#4a8cf0; --epic:#b05cf0;
   }
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%}
-  body{
-    background:var(--bg); color:var(--ink);
-    font-family:"Press Start 2P", monospace; font-size:10px;
-    display:flex; align-items:center; justify-content:center; padding:20px;
-    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);
-  }
+  body{background:var(--bg); color:var(--ink); font-family:"Press Start 2P",monospace; font-size:10px;
+    display:flex; align-items:center; justify-content:center; padding:20px}
+  button{font-family:inherit}
   .stage{display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch}
-  .box{
-    background:var(--panel); width:300px; padding:18px; position:relative;
-    box-shadow:
-      0 0 0 3px var(--edge), 0 0 0 6px #000,
-      6px 6px 0 6px rgba(0,0,0,.6);
-    image-rendering:pixelated;
-  }
-  .title{color:var(--dim); text-align:center; margin-bottom:14px; letter-spacing:1px}
+  .box{background:var(--panel); width:330px; padding:16px; position:relative;
+    box-shadow:0 0 0 2px #2c2838, 0 0 0 4px var(--panel2), 0 0 0 5px #2c2838, 6px 6px 0 6px rgba(0,0,0,.5)}
+  .tag{display:block; width:max-content; margin:0 auto 14px; padding:8px 18px; color:var(--gold2); font-size:11px;
+    background:var(--panel2); box-shadow:0 0 0 2px var(--gold), 0 0 0 4px var(--panel2), 0 0 0 5px var(--golddk)}
+  .gold{box-shadow:0 0 0 2px var(--gold), 0 0 0 4px var(--panel2), 0 0 0 5px var(--golddk)}
 
-  /* ---------- relógio ---------- */
-  .screen{
-    background:var(--screen); width:240px; height:240px; margin:0 auto; position:relative;
-    box-shadow: inset 0 0 0 4px #000, 0 0 0 3px #1f1b2e;
-  }
+  /* relógio */
+  .screen{background:var(--screen); width:250px; height:250px; margin:0 auto; position:relative;
+    box-shadow:0 0 0 2px #2c2838, inset 0 0 0 4px #000}
   .screen svg{position:absolute; inset:0; shape-rendering:crispEdges}
   .readout{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
-  .top{display:flex; gap:6px; align-items:center; height:14px; margin-bottom:4px}
-  .tom{width:8px; height:8px; background:var(--mag); box-shadow:0 0 6px var(--mag)}
-  .tom.off{background:#2b2638; box-shadow:none}
-  .mode{font-size:8px; color:var(--cyan); margin-bottom:2px; letter-spacing:2px}
-  .big{font-family:"VT323", monospace; font-size:64px; line-height:.9; color:#fff;
-       text-shadow:0 0 8px rgba(255,255,255,.35)}
-  .sub{font-family:"VT323", monospace; font-size:26px; color:var(--dim); margin-top:4px}
-  .sub b{color:var(--ink); font-weight:normal}
-
+  .top{display:flex; gap:6px; height:12px; margin-bottom:6px}
+  .tom{width:8px; height:8px; background:var(--green); box-shadow:0 0 6px var(--green); transform:rotate(45deg)}
+  .tom.off{background:#3a3646; box-shadow:none}
+  .mode{font-size:9px; color:var(--green); letter-spacing:2px}
+  .big{font-family:"VT323",monospace; font-size:66px; line-height:.9; color:#f4efe2}
+  .sub{font-family:"VT323",monospace; font-size:24px; color:var(--gold2); margin-top:4px}
+  .sub b{color:var(--gold2); font-weight:normal}
   .keys{display:flex; gap:8px; justify-content:center; margin-top:18px}
-  .key{
-    font-family:inherit; font-size:8px; border:none; cursor:pointer; color:#2a2633;
-    width:56px; height:38px; background:#e8e6ef; position:relative; top:0;
-    box-shadow: inset -3px -4px 0 #b9b5c6, 0 4px 0 #6d6880, 0 4px 0 2px #000;
-    transition:top .05s, box-shadow .05s;
-  }
-  .key:active,.key.on{top:3px; box-shadow: inset -3px -4px 0 #b9b5c6, 0 1px 0 #6d6880, 0 1px 0 2px #000}
-  .key.go{background:var(--orange); color:#fff; box-shadow: inset -3px -4px 0 #c4520a, 0 4px 0 #7a3306, 0 4px 0 2px #000}
-  .key.go:active{box-shadow: inset -3px -4px 0 #c4520a, 0 1px 0 #7a3306, 0 1px 0 2px #000}
+  .key{width:62px; height:48px; border:none; cursor:pointer; background:var(--panel2); color:var(--gold2); font-size:7px;
+    box-shadow:0 0 0 2px var(--golddk), 0 3px 0 2px #000; position:relative; top:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px}
+  .key .ic{font-size:13px; color:var(--green)}
+  .key:active{top:2px}
+  .key.on{box-shadow:0 0 0 2px var(--gold), 0 3px 0 2px #000}
+  .key.go{background:#26401c; box-shadow:0 0 0 2px var(--green), 0 3px 0 2px #000}
+  .key.go .ic{color:var(--gold2); font-size:16px}
+  .hist-btn{display:flex; gap:10px; align-items:center; margin:20px auto 0; background:var(--panel2); color:var(--gold2); border:none;
+    padding:10px 16px; cursor:pointer; font-size:10px; box-shadow:0 0 0 2px var(--gold), 0 3px 0 2px #000}
+  .hist-btn:active{transform:translateY(2px)}
+  .boxinfo{text-align:center; color:var(--dim); font-size:7px; margin-top:14px; line-height:1.6}
 
-  /* ---------- mago ---------- */
-  .portrait{
-    width:240px; height:240px; margin:0 auto; background:var(--screen); position:relative; overflow:hidden;
-    box-shadow: inset 0 0 0 4px #000, 0 0 0 3px #1f1b2e;
-    background-image:
-      linear-gradient(transparent 70%, rgba(34,230,255,.08)),
-      repeating-linear-gradient(90deg, rgba(255,47,168,.06) 0 1px, transparent 1px 24px),
-      repeating-linear-gradient(0deg, rgba(34,230,255,.06) 0 1px, transparent 1px 24px);
-  }
-  canvas{display:block; margin:0 auto; image-rendering:pixelated}
-  .rank{text-align:center; margin-top:12px; color:var(--cyan)}
-  .lvl{color:var(--mag)}
-  .xp{height:12px; background:#000; margin:10px 6px 4px; box-shadow:0 0 0 2px var(--edge); position:relative}
-  .xp i{position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--cyan),var(--mag)); width:0; transition:width .4s steps(12)}
-  .xptext{text-align:center; color:var(--dim); font-size:8px}
-  .next{text-align:center; color:var(--dim); font-size:7px; margin-top:8px; line-height:1.6; min-height:22px}
-  .up{
-    display:block; margin:12px auto 0; font-family:inherit; font-size:10px; cursor:pointer;
-    color:#000; background:var(--cyan); border:none; padding:10px 14px; position:relative; top:0;
-    box-shadow:0 4px 0 #0a8ea0, 0 4px 0 2px #000;
-  }
-  .up:active{top:3px; box-shadow:0 1px 0 #0a8ea0, 0 1px 0 2px #000}
-  .up:disabled{background:#3a3550; color:var(--dim); box-shadow:0 4px 0 #221e30, 0 4px 0 2px #000; cursor:default}
-  .undo{display:block; margin:8px auto 0; background:none; border:none; color:#55506a; font-family:inherit; font-size:7px; cursor:pointer}
-  .float{
-    position:absolute; left:50%; top:40%; transform:translateX(-50%); color:var(--mag);
-    font-size:12px; text-shadow:0 0 8px var(--mag); pointer-events:none; opacity:0; white-space:nowrap;
-  }
+  /* mago */
+  .hero{display:flex; flex-direction:column; gap:12px}
+  .portrait{height:270px; position:relative; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 85%, #1f2a1a 0%, #13121c 60%);
+    box-shadow:0 0 0 2px var(--gold), inset 0 0 0 4px var(--panel2), inset 0 0 0 5px var(--golddk)}
+  .portrait::before,.portrait::after{content:""; position:absolute; width:10px; height:10px; border:2px solid var(--gold); z-index:2}
+  .portrait::before{left:6px; top:6px; border-right:none; border-bottom:none}
+  .portrait::after{right:6px; bottom:6px; border-left:none; border-top:none}
+  #mageImg{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); max-width:calc(100% - 20px); image-rendering:pixelated; transition:opacity .4s; z-index:1}
+  #fx{position:absolute; inset:0; z-index:1; pointer-events:none}
+  .shadow{position:absolute; left:50%; bottom:10px; width:150px; height:12px; transform:translateX(-50%); border-radius:50%; background:rgba(0,0,0,.6)}
+  .slots{display:grid; grid-template-columns:repeat(6,40px); gap:6px; justify-content:center; padding:8px; background:var(--panel2);
+    box-shadow:0 0 0 2px var(--gold), 0 0 0 4px var(--panel2), 0 0 0 5px var(--golddk)}
+  .slot{width:40px; height:40px; background:#0f0e15; position:relative; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 2px #2c2838}
+  .slot canvas{image-rendering:pixelated; opacity:.2}
+  .slot.has canvas{opacity:1}
+  .slot.common{box-shadow:0 0 0 2px var(--common)}
+  .slot.rare{box-shadow:0 0 0 2px var(--rare), 0 0 8px var(--rare)}
+  .slot.epic{box-shadow:0 0 0 2px var(--epic), 0 0 10px var(--epic)}
+  .slot .pw{position:absolute; right:2px; bottom:2px; font-size:6px; text-shadow:1px 1px 0 #000}
+  .lvline{display:flex; align-items:baseline; justify-content:space-between; margin-top:16px}
+  .lv{color:var(--gold2); font-size:13px}
+  .rank{color:var(--dim); font-size:8px}
+  .xp{height:12px; background:#0a0910; margin:10px 0 6px; box-shadow:0 0 0 2px var(--golddk); position:relative}
+  .xp i{position:absolute; left:0; top:0; bottom:0; width:0; background:var(--green); box-shadow:inset 0 -3px 0 var(--green2); transition:width .4s steps(12)}
+  .xptext{color:var(--dim); font-size:7px; text-align:right}
+  .power{display:flex; justify-content:space-between; align-items:center; background:var(--panel2); padding:10px 12px; margin-top:12px;
+    color:var(--gold2); box-shadow:0 0 0 2px var(--golddk)}
+  .power b{font-size:12px; font-weight:normal}
+  .next{color:var(--dim); font-size:7px; margin-top:12px; line-height:1.8; min-height:24px}
+  .next a{color:var(--green); text-decoration:none}
+  .next a:hover{text-decoration:underline}
+  .row{display:flex; gap:10px; margin-top:12px}
+  .btn{flex:1; border:none; cursor:pointer; padding:12px 6px; font-size:10px; color:var(--gold2); position:relative; top:0;
+    background:#26401c; box-shadow:0 0 0 2px var(--green), 0 3px 0 2px #000}
+  .btn:active{top:2px}
+  .btn.loot{background:var(--panel2); box-shadow:0 0 0 2px var(--gold), 0 3px 0 2px #000}
+  .btn:disabled{background:#24212e; color:var(--dim); box-shadow:0 0 0 2px #3a3646, 0 3px 0 2px #000; cursor:default; top:0}
+  .links{display:flex; justify-content:space-between; margin-top:10px}
+  .undo{background:none; border:none; color:#5d5770; font-size:7px; cursor:pointer; padding:0}
+  .float{position:absolute; left:50%; top:40%; transform:translateX(-50%); color:var(--gold2); font-size:11px; z-index:3;
+    text-shadow:2px 2px 0 #000; pointer-events:none; opacity:0; white-space:nowrap}
   .float.show{animation:rise 1.4s steps(14) forwards}
-  @keyframes rise{0%{opacity:1; top:45%}100%{opacity:0; top:10%}}
+  @keyframes rise{0%{opacity:1; top:45%}100%{opacity:0; top:8%}}
+  .lvlup #mageImg{animation:flash .9s steps(6)}
+  @keyframes flash{0%,100%{filter:none}50%{filter:brightness(2.2) drop-shadow(0 0 12px #7ee04a)}}
+
+  /* modais */
+  .modal{position:fixed; inset:0; background:rgba(5,4,8,.85); display:none; align-items:center; justify-content:center; padding:16px; z-index:10}
+  .modal.open{display:flex}
+  .sheet{background:var(--panel); width:min(560px,100%); max-height:92vh; overflow:auto; padding:20px;
+    box-shadow:0 0 0 2px var(--gold), 0 0 0 4px var(--panel2), 0 0 0 5px var(--golddk)}
+  .sheet h2{font-size:11px; color:var(--gold2); margin:0 0 16px; font-weight:normal; display:flex; justify-content:space-between}
+  .x{background:none; border:none; color:var(--dim); cursor:pointer; font-size:11px}
+  .chestwrap{text-align:center; padding:10px 0}
+  #chest{image-rendering:pixelated; cursor:pointer}
+  #chest.shake{animation:shake .5s steps(6)}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px) rotate(-3deg)}40%{transform:translateX(4px) rotate(3deg)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .reveal{min-height:90px; text-align:center; margin-top:8px}
+  .reveal .name{font-size:10px; margin:10px 0 6px}
+  .reveal .meta{font-size:7px; color:var(--dim); line-height:1.8}
+  .hint{text-align:center; color:var(--dim); font-size:7px}
+  .cal{display:grid; grid-template-rows:repeat(7,14px); grid-auto-flow:column; grid-auto-columns:14px; gap:3px; justify-content:center}
+  .d{width:14px; height:14px; background:#13121c; cursor:pointer; border:none; padding:0}
+  .d.l1{background:#1f3a1a} .d.l2{background:#2f6224} .d.l3{background:#4f9a32} .d.l4{background:#7ee04a}
+  .d.sel{outline:2px solid var(--gold2)}
+  .d.c::after{content:""; display:block; width:4px; height:4px; background:var(--gold2); margin:5px}
+  .legend{display:flex; gap:4px; align-items:center; justify-content:flex-end; font-size:6px; color:var(--dim); margin-top:8px}
+  .legend i{display:inline-block; width:10px; height:10px}
+  .daybox{margin-top:16px; background:var(--panel2); padding:12px; box-shadow:0 0 0 2px var(--golddk)}
+  .daybox .t{color:var(--gold2); font-size:9px; margin-bottom:8px}
+  .daybox .s{color:var(--dim); font-family:"VT323",monospace; font-size:18px}
+  textarea{width:100%; margin-top:10px; min-height:70px; resize:vertical; background:#0a0910; color:var(--ink);
+    border:none; box-shadow:inset 0 0 0 2px #2c2838; padding:8px; font-family:"VT323",monospace; font-size:18px}
+  .saved{font-size:7px; color:var(--green); height:10px; margin-top:6px}
+  .stats{display:flex; gap:12px; justify-content:center; margin-bottom:14px; font-size:7px; color:var(--dim); text-align:center}
+  .stats b{display:block; color:var(--gold2); font-size:11px; font-weight:normal; margin-bottom:4px}
+  .mlist{display:flex; flex-direction:column; gap:8px}
+  .mi{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px; background:var(--panel2); box-shadow:0 0 0 2px #2c2838; font-size:8px}
+  .mi.ok{box-shadow:0 0 0 2px var(--green2)}
+  .mi a{color:var(--ink); text-decoration:none; line-height:1.6}
+  .mi a:hover{color:var(--green)}
+  .mi .xpv{color:var(--gold2); white-space:nowrap}
 </style>
 </head>
 <body>
@@ -94,7 +141,7 @@
 
   <!-- RELÓGIO -->
   <section class="box" aria-label="Pomodoro">
-    <div class="title">POMODORO</div>
+    <span class="tag">POMODORO</span>
     <div class="screen">
       <svg id="ring" width="240" height="240" viewBox="0 0 240 240" aria-hidden="true"></svg>
       <div class="readout">
@@ -105,244 +152,377 @@
       </div>
     </div>
     <div class="keys">
-      <button class="key go" id="start">▶</button>
-      <button class="key on" data-mode="focus">FOCO</button>
-      <button class="key" data-mode="rest">PAUSA</button>
-      <button class="key" id="reset">↺</button>
+      <button class="key go" id="start"><span class="ic" id="startIc">▶</span></button>
+      <button class="key on" data-mode="focus">FOCO<span class="ic">◎</span></button>
+      <button class="key" data-mode="rest">PAUSA<span class="ic">❚❚</span></button>
+      <button class="key" id="reset">ZERAR<span class="ic">↺</span></button>
     </div>
+    <button class="hist-btn" id="openHist">📜 HISTÓRICO</button>
+    <div class="boxinfo" id="pomoBox">A cada 4 pomodoros: 1 caixa de loot</div>
   </section>
 
   <!-- MAGO -->
   <section class="box" aria-label="Mago">
-    <div class="title">MAGO NEON</div>
-    <div class="portrait">
-      <canvas id="mage" width="200" height="232"></canvas>
-      <div class="float" id="float"></div>
+    <span class="tag">MAGO</span>
+    <div class="hero">
+      <div class="portrait" id="portrait">
+        <div class="shadow"></div>
+        <img id="mageImg" alt="Mago" src="img/mago1.png">
+        <canvas id="fx" width="298" height="270"></canvas>
+        <div class="float" id="float"></div>
+      </div>
+      <div class="slots" id="slots"></div>
     </div>
-    <div class="rank"><span class="lvl" id="lvl">NV 1</span> · <span id="rankname">APRENDIZ</span></div>
+    <div class="lvline"><span class="lv" id="lv">Nv. 1</span><span class="rank" id="rank">APRENDIZ</span></div>
     <div class="xp"><i id="xpbar"></i></div>
     <div class="xptext" id="xptext">0 / 650 XP</div>
+    <div class="power"><span>PODER</span><b id="power">10</b></div>
     <div class="next" id="next"></div>
-    <button class="up" id="up">⬆ UPAR</button>
-    <button class="undo" id="undo">desfazer</button>
+    <div class="row">
+      <button class="btn" id="up">⬆ UPAR</button>
+      <button class="btn loot" id="openLoot">📦 0</button>
+    </div>
+    <div class="links"><button class="undo" id="openMissions">📜 ver missões</button><button class="undo" id="undo">desfazer última</button></div>
   </section>
+</div>
 
+<!-- MODAL LOOT -->
+<div class="modal" id="lootModal" role="dialog" aria-label="Caixa de loot">
+  <div class="sheet" style="width:min(360px,100%)">
+    <h2>CAIXA DE LOOT <button class="x" data-close>✕</button></h2>
+    <div class="chestwrap"><canvas id="chest" width="144" height="120"></canvas></div>
+    <div class="hint" id="lootHint">Clique na caixa para abrir</div>
+    <div class="reveal" id="reveal"></div>
+  </div>
+</div>
+
+<!-- MODAL MISSÕES -->
+<div class="modal" id="missModal" role="dialog" aria-label="Missões">
+  <div class="sheet">
+    <h2>MISSÕES DO NOTION <button class="x" data-close>✕</button></h2>
+    <div class="mlist" id="mlist"></div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO -->
+<div class="modal" id="histModal" role="dialog" aria-label="Histórico">
+  <div class="sheet">
+    <h2>HISTÓRICO <button class="x" data-close>✕</button></h2>
+    <div class="stats" id="histStats"></div>
+    <div class="cal" id="cal"></div>
+    <div class="legend">menos <i style="background:#13121c"></i><i style="background:#1f3a1a"></i><i style="background:#2f6224"></i><i style="background:#4f9a32"></i><i style="background:#7ee04a"></i> mais · <i style="background:var(--gold);width:4px;height:4px"></i> comentário</div>
+    <div class="daybox">
+      <div class="t" id="dayTitle"></div>
+      <div class="s" id="daySummary"></div>
+      <textarea id="dayNote" placeholder="Como foi o dia? O que estudou, o que travou..."></textarea>
+      <div class="saved" id="saved"></div>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ================= RELÓGIO ================= */
-const MODES = {
-  focus:{min:25, label:"FOCO",  next:"rest"},
-  rest: {min:5,  label:"PAUSA", next:"focus"}
-};
-const SEG = 30;
-const COLORS = ["#1e90ff","#22b8ff","#22e6ff","#22f0b0","#3ef06a","#9be83a","#ffd23f","#ffb02e","#ff7a1a","#ff4a3a","#ff2f6e","#ff2fa8"];
-const ring = document.getElementById("ring");
-const segs = [];
-(function buildRing(){
-  const cx=120, cy=120, r1=96, r2=112, gap=3.2;
-  for(let i=0;i<SEG;i++){
-    const a0 = (i/SEG)*360 - 90 + gap/2, a1 = ((i+1)/SEG)*360 - 90 - gap/2;
-    const p = (r,a)=>[cx + r*Math.cos(a*Math.PI/180), cy + r*Math.sin(a*Math.PI/180)];
-    const [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
-    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-    path.setAttribute("d",`M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4} Z`);
-    const c = COLORS[Math.floor(i/SEG*COLORS.length)];
-    path.dataset.c = c;
-    ring.appendChild(path); segs.push(path);
+/* =========================================================
+   DADOS (etapa 2: trocar load/save por Google Sheets)
+   ========================================================= */
+const KEY="pomodoro-potato-v2";
+const DEFAULT={ missions:0, boxes:0, focusCount:0, sessions:[], notes:{}, equip:{}, bag:[] };
+let DB = load();
+function load(){
+  let d=null;
+  try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!d){
+    d=JSON.parse(JSON.stringify(DEFAULT));
+    try{ // migra versão anterior
+      const m=localStorage.getItem("pomo-mago-missions"); if(m){ d.missions=+m; d.boxes=+m; }
+    }catch(e){}
   }
-})();
-
-const clock=document.getElementById("clock"), modeEl=document.getElementById("mode"),
-      startBtn=document.getElementById("start"), toms=document.getElementById("toms");
-let mode="focus", total=25*60, left=total, endAt=null, tick=null, audio=null;
-let done = load("pomos", 0);
-
-function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
-function drawClock(){
-  clock.textContent=fmt(left);
-  modeEl.textContent=MODES[mode].label;
-  modeEl.style.color = mode==="focus" ? "var(--cyan)" : "#3ef06a";
-  const lit = Math.ceil(SEG*left/total);
-  segs.forEach((p,i)=>{
-    const on = i < lit;
-    p.setAttribute("fill", on ? p.dataset.c : "#1a1726");
-    p.style.filter = on && tick ? `drop-shadow(0 0 3px ${p.dataset.c})` : "none";
-  });
-  toms.innerHTML = "";
-  for(let i=0;i<4;i++){ const d=document.createElement("i"); d.className="tom"+(i < done%4 || (done>0 && done%4===0) ? "" : " off"); toms.appendChild(d); }
-  document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
-  document.title=(tick?fmt(left)+" · ":"")+"Pomodoro da Missão";
+  return Object.assign(JSON.parse(JSON.stringify(DEFAULT)), d);
 }
-function drawNow(){
-  const d=new Date();
-  document.getElementById("now").textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-  document.getElementById("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()];
-}
-function beep(){
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+const today=()=>{const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+
+/* =========================================================
+   SOM
+   ========================================================= */
+let audio=null;
+function tone(seq){
   try{
     audio=audio||new (window.AudioContext||window.webkitAudioContext)();
-    [0,.18,.36,.7].forEach((t,i)=>{
+    seq.forEach(([f,t,d])=>{
       const o=audio.createOscillator(), g=audio.createGain();
-      o.type="square"; o.frequency.value=[660,880,990,1320][i];
-      o.connect(g); g.connect(audio.destination);
-      g.gain.setValueAtTime(.08,audio.currentTime+t); g.gain.setValueAtTime(0,audio.currentTime+t+.14);
-      o.start(audio.currentTime+t); o.stop(audio.currentTime+t+.15);
+      o.type="square"; o.frequency.value=f; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(.07,audio.currentTime+t); g.gain.setValueAtTime(0,audio.currentTime+t+d);
+      o.start(audio.currentTime+t); o.stop(audio.currentTime+t+d+.01);
     });
   }catch(e){}
 }
-function stop(){clearInterval(tick); tick=null; endAt=null; startBtn.textContent="▶"}
+const SND={
+  done:()=>tone([[660,0,.12],[880,.16,.12],[990,.32,.12],[1320,.5,.25]]),
+  xp:()=>tone([[523,0,.08],[784,.09,.12]]),
+  open:(r)=>tone(r==="epic"?[[523,0,.1],[659,.1,.1],[784,.2,.1],[1047,.3,.1],[1319,.4,.3]]:r==="rare"?[[523,0,.1],[784,.12,.1],[1047,.24,.25]]:[[440,0,.1],[660,.12,.2]])
+};
+
+/* =========================================================
+   RELÓGIO
+   ========================================================= */
+const MODES={focus:{min:25,label:"FOCO",next:"rest"}, rest:{min:5,label:"PAUSA",next:"focus"}};
+const SEG=30;
+const RING=["#3fc79a","#45cf8a","#54d474","#6dd85a","#8ad84a","#a6d640","#c2d23a","#d8c936","#e6b932","#ebaa30","#e89a2e","#e08a2c"];
+const segs=[];
+(function(){
+  const svg=document.getElementById("ring"), cx=120, cy=120, r1=96, r2=112, gap=3.2;
+  const p=(r,a)=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
+  for(let i=0;i<SEG;i++){
+    const a0=i/SEG*360-90+gap/2, a1=(i+1)/SEG*360-90-gap/2;
+    const [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
+    const el=document.createElementNS("http://www.w3.org/2000/svg","path");
+    el.setAttribute("d",`M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4} Z`);
+    el.dataset.c=RING[Math.floor(i/SEG*RING.length)]; svg.appendChild(el); segs.push(el);
+  }
+})();
+const $=id=>document.getElementById(id);
+let mode="focus", total=25*60, left=total, endAt=null, tick=null;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+function drawClock(){
+  $("clock").textContent=fmt(left);
+  $("mode").textContent=MODES[mode].label;
+  $("mode").style.color=mode==="focus"?"#7ee04a":"#e8c66a";
+  const lit=Math.ceil(SEG*left/total);
+  segs.forEach((s,i)=>{ const on=i<lit; s.setAttribute("fill",on?s.dataset.c:"#1c1a26"); s.style.filter=on&&tick?`drop-shadow(0 0 3px ${s.dataset.c})`:"none"; });
+  const cyc=DB.focusCount%4; $("toms").innerHTML="";
+  for(let i=0;i<4;i++){ const t=document.createElement("i"); t.className="tom"+(i<cyc?"":" off"); $("toms").appendChild(t); }
+  $("pomoBox").textContent=`🍅 ${cyc}/4 para a próxima caixa`;
+  document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
+  document.title=(tick?fmt(left)+" · ":"")+"Pomodoro-potato";
+}
+function drawNow(){ const d=new Date(); $("now").textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); $("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()]; }
+function stop(){clearInterval(tick); tick=null; endAt=null; $("startIc").textContent="▶"}
 function setMode(m){stop(); mode=m; total=MODES[m].min*60; left=total; drawClock()}
 function step(){
   left=Math.max(0,Math.round((endAt-Date.now())/1000));
-  if(left===0){ beep(); if(mode==="focus"){done++; save("pomos",done)} setMode(MODES[mode].next); return; }
+  if(left===0){
+    SND.done();
+    if(mode==="focus"){
+      const d=new Date();
+      DB.sessions.push({date:today(), time:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"), min:MODES.focus.min});
+      DB.focusCount++;
+      if(DB.focusCount%4===0){ DB.boxes++; pop("+1 📦"); }
+      save(); drawHero();
+    }
+    setMode(MODES[mode].next); return;
+  }
   drawClock();
 }
-startBtn.onclick=()=>{
+$("start").onclick=()=>{
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume()}catch(e){}
   if(tick){stop(); drawClock(); return}
-  endAt=Date.now()+left*1000; tick=setInterval(step,250); startBtn.textContent="❚❚"; drawClock();
+  endAt=Date.now()+left*1000; tick=setInterval(step,250); $("startIc").textContent="❚❚"; drawClock();
 };
-document.getElementById("reset").onclick=()=>setMode(mode);
+$("reset").onclick=()=>setMode(mode);
 document.querySelectorAll(".key[data-mode]").forEach(k=>k.onclick=()=>setMode(k.dataset.mode));
-drawNow(); setInterval(drawNow,10000); drawClock();
 
-/* ================= MAGO ================= */
+/* =========================================================
+   MISSÕES, XP E NÍVEIS
+   ========================================================= */
+/* copiadas da base "Missões" do Notion (etapa 2: sincronizar ao vivo) */
+const NOTION="https://app.notion.com/p/";
 const MISSIONS=[
-  ["Missão 1 · O que é uma skill",50],["Missão 2 · Anatomia",50],["Missão 3 · Estudo de caso",75],
-  ["Missão 4 · Skill de brinquedo",75],["Missão 5 · Posts do poke v1",100],["Missão 6 · Com vs. sem",100],
-  ["Chefão · Skill v2 real",200]
+  ["1. O que é uma skill",50,"41327fd5e41f81689d69cd92b4e87100"],
+  ["2. Anatomia de uma skill",50,"41327fd5e41f8137bd1fc8c2a9d8e560"],
+  ["3. Estudo de caso: a skill do vídeo",75,"41327fd5e41f81b58698e703e0b948b4"],
+  ["4. Primeira skill de brinquedo",75,"41327fd5e41f81bcb97df4d035dbfe8f"],
+  ["5. Skill de posts do poke (v1)",100,"41327fd5e41f819ca43cfa4aab7c763c"],
+  ["6. Teste: com vs. sem a skill",100,"41327fd5e41f81dab95acee54bdb83e3"],
+  ["7. Chefão: skill v2 em uso real",200,"41327fd5e41f810282d4e70800cf0d30"]
 ];
-const RANKS=[[0,"APRENDIZ"],[175,"ARTESÃO"],[450,"MESTRE"]];
 const MAX=650;
-let doneMissions = load("missions",0);
+const xpOf=n=>MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0);
+const stageOf=xp=>xp>=450?2:xp>=175?1:0;
+const RANKS=["APRENDIZ","FEITICEIRO","ARQUIMAGO"];
 
-const PAL={
-  K:"#0d0b14", H:"#3b2a63", h:"#5a43a0", S:"#e8b796", s:"#b9826a",
-  V:"#22e6ff", C:"#22e6ff", M:"#ff2fa8", G:"#c9c3d6", g:"#6b6680", Y:"#ffd23f", W:"#ffffff", D:"#1b1430", T:"#14e0c8"
+/* =========================================================
+   LOOT
+   ========================================================= */
+const SLOTS=["hat","cape","gloves","boots","staff","amulet"];
+const SLOT_PT={hat:"Chapéu",cape:"Capa",gloves:"Luvas",boots:"Botas",staff:"Cajado",amulet:"Amuleto"};
+const RAR={
+  common:{pt:"Comum", color:"#a7a3b0", main:"#6b6578", dark:"#4a4556", pw:[5,10],  chance:.65, adj:"de Aprendiz"},
+  rare:  {pt:"Raro",  color:"#4a8cf0", main:"#2f5fb3", dark:"#1f3f7a", pw:[15,25], chance:.28, adj:"Arcano"},
+  epic:  {pt:"Épico", color:"#b05cf0", main:"#7a35b8", dark:"#4f2079", pw:[35,50], chance:.07, adj:"Astral"}
 };
-const HALF=[
-  "..........",
-  "........KK",
-  ".......KHH",
-  "......KHHh",
-  ".....KHHhh",
-  ".....KHHHH",
-  ".....KHKKK",
-  ".....KHKVV",
-  ".....KHKSS",
-  ".....KHKsS",
-  "....KHHHKK",
-  "...KHHMHHH",
-  "...KHHHHCH",
-  "..KHHhHHHC",
-  "..KHhhHHHH",
-  "..KSKHHHHH",
-  "...KKHHHMM",
-  "....KHHHHH",
-  "....KHHhHH",
-  "...KHHhhHH",
-  "...KHHHHHH",
-  "...KKKKKKK",
-  "....KCK...",
-  "....KKK..."
-];
-const BASE = HALF.map(r=>r+r.split("").reverse().join(""));
-const W=20, Hh=24, PX=8, OX=20, OY=24;
-
-function stageOf(xp){return xp>=450?2:xp>=175?1:0}
-
-function overlays(stage,t){
-  const o=[]; const add=(x,y,c)=>o.push([x,y,c]);
-  // ponta do capuz
-  add(9,0,"K"); add(10,0,"K");
-  if(stage===0){
-    for(let y=10;y<=16;y++) add(17,y,"g");
-    add(17,9,"C"); if(t%2) {add(18,8,"C"); add(16,8,"C");}
-  }
-  if(stage>=1){
-    // ombreiras e circuitos
-    add(3,11,"C"); add(4,11,"C"); add(15,11,"C"); add(16,11,"C");
-    add(9,17,"M"); add(10,18,"M"); add(9,19,"M"); add(10,20,"M");
-    // cajado alto
-    for(let y=4;y<=22;y++) add(18,y,"g");
-    add(17,15,"S");
-    const orb = stage===2 ? "Y" : "M";
-    add(17,2,orb); add(18,2,orb); add(19,2,orb);
-    add(17,3,orb); add(18,3,"W"); add(19,3,orb);
-    add(18,1,orb); if(t%2) add(18,0,orb);
-  }
-  if(stage===2){
-    // antenas no capuz + capa neon
-    add(7,1,"C"); add(6,0,"C"); add(12,1,"C"); add(13,0,"C");
-    for(let y=11;y<=21;y++){ add(1,y,y%2?"D":"M"); add(0,y+1>21?21:y+1,"K"); }
-    for(let y=12;y<=20;y++) add(2,y,"D");
-    // runas flutuando
-    const runes=[[ -2,6],[21,9],[-1,17],[21,19],[2,-1],[16,-1]];
-    runes.forEach(([x,y],i)=>{ if((t+i)%3!==0) add(x,y+((t+i)%2),i%2?"C":"M"); });
-  }
-  return o;
+function rollItem(){
+  const r=Math.random(); const rarity = r<RAR.epic.chance?"epic": r<RAR.epic.chance+RAR.rare.chance?"rare":"common";
+  const slot=SLOTS[Math.floor(Math.random()*SLOTS.length)];
+  const [a,b]=RAR[rarity].pw; const pw=a+Math.floor(Math.random()*(b-a+1));
+  return {slot, rarity, pw, name:`${SLOT_PT[slot]} ${RAR[rarity].adj}`};
 }
+const basePower=()=>10+stageOf(xpOf(DB.missions))*15+DB.missions*5;
+const power=()=>basePower()+SLOTS.reduce((s,k)=>s+(DB.equip[k]?DB.equip[k].pw:0),0);
 
-const cv=document.getElementById("mage"), ctx=cv.getContext("2d");
-let frame=0;
+/* =========================================================
+   MAGO (imagens por nível + partículas)
+   ========================================================= */
+const MAGE_IMG=["img/mago1.png","img/mago2.png","img/mago3.png"];
+const MAGE_H=[220,244,256];
+let shownStage=-1;
 function drawMage(){
-  const xp=xpOf(doneMissions), stage=stageOf(xp);
-  ctx.clearRect(0,0,cv.width,cv.height);
-  const bob = frame%4<2 ? 0 : 1;
-  const robe = stage===0?"#3b2a63": stage===1?"#4a2f8a":"#1d1838";
-  const robeHi = stage===0?"#5a43a0": stage===1?"#6a4fc0":"#2e5c8a";
-  const visor = stage===2?"#ff2fa8":"#22e6ff";
-  const pal = Object.assign({},PAL,{H:robe,h:robeHi,V:visor});
-  // sombra no chão
-  ctx.fillStyle="rgba(34,230,255,.18)";
-  ctx.fillRect(OX+4*PX, OY+24*PX, 12*PX, PX);
-  // aura atrás do mago
-  if(stage>=1){
-    const g=ctx.createRadialGradient(OX+10*PX, OY+13*PX, 10, OX+10*PX, OY+13*PX, 110);
-    const a = stage===2 ? (frame%2?.30:.22) : .14;
-    g.addColorStop(0, stage===2?`rgba(255,47,168,${a})`:`rgba(34,230,255,${a})`);
-    g.addColorStop(1,"rgba(0,0,0,0)");
-    ctx.fillStyle=g; ctx.fillRect(0,0,cv.width,cv.height);
+  const stage=stageOf(xpOf(DB.missions)), img=$("mageImg");
+  if(stage!==shownStage){
+    img.src=MAGE_IMG[stage]; img.style.height=MAGE_H[stage]+"px";
+    if(shownStage!==-1){ const p=$("portrait"); p.classList.remove("lvlup"); void p.offsetWidth; p.classList.add("lvlup"); }
+    shownStage=stage;
   }
-  const NEON={C:1,M:1,Y:1,V:1};
-  const put=(x,y,c)=>{ if(!pal[c]) return;
-    if(NEON[c] && stage>=1){ ctx.shadowColor=pal[c]; ctx.shadowBlur=6; } else ctx.shadowBlur=0;
-    ctx.fillStyle=pal[c]; ctx.fillRect(OX+x*PX, OY+(y+bob)*PX, PX, PX); };
-  for(let y=0;y<Hh;y++) for(let x=0;x<W;x++){ const c=BASE[y][x]; if(c!==".") put(x,y,c); }
-  overlays(stage,frame).forEach(([x,y,c])=>put(x,y,c));
-  ctx.shadowBlur=0;
-  frame++;
 }
-setInterval(drawMage,350);
+const parts=[];
+function fxLoop(){
+  const cv=$("fx"), ctx=cv.getContext("2d"), stage=stageOf(xpOf(DB.missions));
+  const want=[6,12,22][stage];
+  while(parts.length<want) parts.push({x:20+Math.random()*258, y:180+Math.random()*80, v:.3+Math.random()*.7, s:Math.random()<.3?4:2, c:Math.random()<.25?"#e8c66a":(stage===2&&Math.random()<.3?"#5ff0d0":"#7ee04a"), a:1});
+  while(parts.length>want) parts.pop();
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{
+    p.y-=p.v; p.a=Math.max(0,Math.min(1,(p.y-20)/120));
+    if(p.y<10){ p.y=200+Math.random()*60; p.x=20+Math.random()*258; }
+    ctx.globalAlpha=p.a*.9; ctx.fillStyle=p.c; ctx.fillRect(Math.round(p.x),Math.round(p.y),p.s,p.s);
+  });
+  ctx.globalAlpha=1;
+  requestAnimationFrame(fxLoop);
+}
+requestAnimationFrame(fxLoop);
 
-function xpOf(n){return MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0)}
-function drawStats(){
-  const xp=xpOf(doneMissions), stage=stageOf(xp);
-  document.getElementById("lvl").textContent="NV "+(stage+1);
-  document.getElementById("rankname").textContent=RANKS[stage][1];
-  document.getElementById("xpbar").style.width=(xp/MAX*100)+"%";
-  document.getElementById("xptext").textContent=xp+" / "+MAX+" XP";
-  const up=document.getElementById("up"), next=document.getElementById("next");
-  if(doneMissions>=MISSIONS.length){ up.disabled=true; up.textContent="CURSO COMPLETO"; next.textContent="Todas as missões feitas."; }
-  else { up.disabled=false; up.textContent="⬆ UPAR +"+MISSIONS[doneMissions][1]+" XP"; next.textContent="Próxima: "+MISSIONS[doneMissions][0]; }
-}
-function pop(text){ const f=document.getElementById("float"); f.textContent=text; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
-document.getElementById("up").onclick=()=>{
-  if(doneMissions>=MISSIONS.length) return;
-  const before=stageOf(xpOf(doneMissions));
-  doneMissions++; save("missions",doneMissions);
-  const after=stageOf(xpOf(doneMissions));
-  pop(after>before ? "LEVEL UP!" : "+"+MISSIONS[doneMissions-1][1]+" XP");
-  try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume(); beep(); }catch(e){}
-  drawStats(); drawMage();
+/* ícones dos slots (12x12) */
+const ICONS={
+  hat:   ["......XX....",".....XXX....","....XXXX....","....XXX.....","...XXXXX....","...XXXXX....","..XXXXXXX...","..YYYYYYY...","XXXXXXXXXXX.","XXXXXXXXXXX.","............","............"],
+  cape:  ["...YYYYYY...","..XXXXXXXX..","..XXXXXXXX..",".XXXXXXXXXX.",".XXXXXXXXXX.",".XXXXXXXXXX.","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXX.XX.XXXX","XXX..XX..XXX","............"],
+  gloves:["............","..X.X.X.....","..X.X.X.X...","..X.X.X.X...","..XXXXXXX...","..XXXXXXX.X.","..XXXXXXXXX.","..XXXXXXXX..","..XXXXXXX...","..YYYYYYY...","..YYYYYYY...","............"],
+  boots: ["............","...XXXX.....","...XXXX.....","...XXXX.....","...XXXX.....","...XXXX.....","...XXXX.....","...XXXXXXX..","...XXXXXXXX.","...XXXXXXXX.","...YYYYYYYY.","............"],
+  staff: ["........YYY.",".......YWYY.","........YYY.",".......X.X..","......XX....",".....XX.....","....XX......","...XX.......","..XX........",".XX.........","XX..........","............"],
+  amulet:["..Y......Y..","...Y....Y...","....Y..Y....",".....YY.....","....XXXX....","...XXWXXX...","...XXXXXX...","...XXXXXX...","....XXXX....",".....XX.....","............","............"]
 };
-document.getElementById("undo").onclick=()=>{ if(doneMissions>0){doneMissions--; save("missions",doneMissions); drawStats(); drawMage();} };
-drawStats(); drawMage();
+function drawIcon(cv, slot, rarity, size){
+  const ctx=cv.getContext("2d"), px=size/12, R=rarity?RAR[rarity]:{main:"#6b6578",color:"#8a8496"};
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const map={X:R.main, Y:rarity?R.color:"#8a8496", W:"#ffffff"};
+  ICONS[slot].forEach((row,y)=>[...row].forEach((c,x)=>{ if(map[c]){ ctx.fillStyle=map[c]; ctx.fillRect(x*px,y*px,px,px); } }));
+}
 
-/* ================= salvar ================= */
-function load(k,d){ try{ const v=localStorage.getItem("pomo-mago-"+k); return v===null?d:+v; }catch(e){ return d; } }
-function save(k,v){ try{ localStorage.setItem("pomo-mago-"+k,v); }catch(e){} }
+/* =========================================================
+   CARD DO MAGO
+   ========================================================= */
+function drawSlots(){
+  const el=$("slots"); el.innerHTML="";
+  SLOTS.forEach(s=>{
+    const it=DB.equip[s], d=document.createElement("div");
+    d.className="slot"+(it?" has "+it.rarity:"");
+    d.title=it?`${it.name} · ${RAR[it.rarity].pt} · +${it.pw} poder`:`${SLOT_PT[s]}: vazio`;
+    const c=document.createElement("canvas"); c.width=c.height=30; drawIcon(c,s,it&&it.rarity,30); d.appendChild(c);
+    if(it){ const p=document.createElement("span"); p.className="pw"; p.textContent="+"+it.pw; d.appendChild(p); }
+    el.appendChild(d);
+  });
+}
+function drawHero(){
+  const xp=xpOf(DB.missions), stage=stageOf(xp);
+  $("lv").textContent="Nv. "+(stage+1); $("rank").textContent=RANKS[stage];
+  $("xpbar").style.width=(xp/MAX*100)+"%"; $("xptext").textContent=xp+" / "+MAX+" XP";
+  $("power").textContent=power();
+  const up=$("up");
+  if(DB.missions>=MISSIONS.length){ up.disabled=true; up.textContent="COMPLETO"; $("next").textContent="Todas as missões concluídas."; }
+  else { const m=MISSIONS[DB.missions]; up.disabled=false; up.textContent="⬆ UPAR +"+m[1];
+    $("next").innerHTML=`📜 Próxima: <a href="${NOTION+m[2]}" target="_blank" rel="noopener">${m[0]}</a>`; }
+  $("openLoot").textContent="📦 "+DB.boxes; $("openLoot").disabled=DB.boxes<1;
+  drawSlots(); drawClock();
+}
+function drawMissions(){
+  $("mlist").innerHTML = MISSIONS.map((m,i)=>`<div class="mi${i<DB.missions?" ok":""}">
+    <a href="${NOTION+m[2]}" target="_blank" rel="noopener">${i<DB.missions?"✔":"▢"} ${m[0]}</a><span class="xpv">${m[1]} XP</span></div>`).join("");
+}
+function pop(text){ const f=$("float"); f.textContent=text; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
+$("up").onclick=()=>{
+  if(DB.missions>=MISSIONS.length) return;
+  const before=stageOf(xpOf(DB.missions));
+  DB.missions++; DB.boxes++; save();
+  const after=stageOf(xpOf(DB.missions));
+  pop(after>before?"LEVEL UP!":"+"+MISSIONS[DB.missions-1][1]+" XP  +1 📦");
+  SND.xp(); drawHero(); drawMage();
+};
+$("undo").onclick=()=>{ if(DB.missions>0){ DB.missions--; if(DB.boxes>0) DB.boxes--; save(); drawHero(); drawMage(); } };
+
+/* =========================================================
+   MODAL: CAIXA DE LOOT
+   ========================================================= */
+function openModal(id){ $(id).classList.add("open"); }
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("open"); }));
+
+function drawChest(open, rarity){
+  const cv=$("chest"), ctx=cv.getContext("2d"), P=8; ctx.clearRect(0,0,cv.width,cv.height);
+  const r=(x,y,w,h,c)=>{ctx.fillStyle=c; ctx.fillRect(x*P,y*P,w*P,h*P)};
+  if(open && rarity){ const c=RAR[rarity].color; ctx.globalAlpha=.35; r(5,0,8,7,c); ctx.globalAlpha=.6; r(7,1,4,6,c); ctx.globalAlpha=1; }
+  r(2,8,14,7,"#100d16"); r(3,9,12,5,"#7a5432"); r(3,9,12,1,"#9a6d42"); r(3,11,12,1,"#c9a75a"); r(8,10,2,3,"#e8c66a");
+  if(open){ r(2,5,14,3,"#100d16"); r(3,6,12,1,"#5a3d24"); }
+  else { r(2,4,14,5,"#100d16"); r(3,5,12,3,"#8f6a42"); r(3,5,12,1,"#b58a58"); r(3,7,12,1,"#c9a75a"); r(8,6,2,2,"#e8c66a"); }
+}
+let opening=false;
+$("openLoot").onclick=()=>{ if(DB.boxes<1) return; $("reveal").innerHTML=""; $("lootHint").textContent="Clique na caixa para abrir"; drawChest(false); openModal("lootModal"); };
+$("chest").onclick=()=>{
+  if(opening || DB.boxes<1) return; opening=true;
+  const ch=$("chest"); ch.classList.add("shake"); $("lootHint").textContent="...";
+  setTimeout(()=>{
+    ch.classList.remove("shake");
+    const it=rollItem(); DB.boxes--;
+    const cur=DB.equip[it.slot]; const better=!cur || it.pw>cur.pw;
+    if(better) DB.equip[it.slot]=it; DB.bag.push(it); save();
+    drawChest(true, it.rarity); SND.open(it.rarity);
+    const R=RAR[it.rarity];
+    $("reveal").innerHTML=`<canvas id="ric" width="48" height="48" style="image-rendering:pixelated"></canvas>
+      <div class="name" style="color:${R.color}">${it.name}</div>
+      <div class="meta">${R.pt} · +${it.pw} poder<br>${better?"✔ Equipado no mago":"Você já tem um "+SLOT_PT[it.slot].toLowerCase()+" melhor (+"+cur.pw+"). Guardado na coleção."}</div>`;
+    drawIcon($("ric"), it.slot, it.rarity, 48);
+    $("lootHint").textContent = DB.boxes>0 ? `Ainda tem ${DB.boxes} 📦 · clique de novo` : "";
+    if(DB.boxes>0) setTimeout(()=>drawChest(false),1600);
+    drawHero(); drawMage(); opening=false;
+  },550);
+};
+
+/* =========================================================
+   MODAL: HISTÓRICO
+   ========================================================= */
+const WEEKS=16;
+let selDay=today();
+function dayKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function byDay(){ const m={}; DB.sessions.forEach(s=>{ (m[s.date]=m[s.date]||[]).push(s); }); return m; }
+function drawHist(){
+  const m=byDay(), cal=$("cal"); cal.innerHTML="";
+  const end=new Date(); end.setHours(0,0,0,0);
+  const start=new Date(end); start.setDate(end.getDate()-end.getDay()-(WEEKS-1)*7);
+  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+    const k=dayKey(d), n=(m[k]||[]).length, b=document.createElement("button");
+    b.className="d"+(n>=6?" l4":n>=4?" l3":n>=2?" l2":n>=1?" l1":"")+(k===selDay?" sel":"")+(DB.notes[k]?" c":"");
+    b.title=`${d.toLocaleDateString("pt-BR")}: ${n} pomodoro(s)`;
+    b.onclick=()=>{ selDay=k; drawHist(); };
+    cal.appendChild(b);
+  }
+  const total=DB.sessions.length, mins=DB.sessions.reduce((a,s)=>a+s.min,0), days=Object.keys(m).length;
+  let streak=0; const c=new Date(end); if(!m[dayKey(c)]) c.setDate(c.getDate()-1);
+  while(m[dayKey(c)]){ streak++; c.setDate(c.getDate()-1); }
+  $("histStats").innerHTML=`<div><b>${total}</b>POMODOROS</div><div><b>${Math.floor(mins/60)}h${String(mins%60).padStart(2,"0")}</b>FOCADO</div><div><b>${days}</b>DIAS</div><div><b>${streak}🔥</b>SEQUÊNCIA</div>`;
+  const list=m[selDay]||[], dt=new Date(selDay+"T12:00:00");
+  $("dayTitle").textContent=dt.toLocaleDateString("pt-BR",{weekday:"long", day:"2-digit", month:"long"}).toUpperCase();
+  $("daySummary").textContent = list.length ? `${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · terminados às ${list.map(s=>s.time).join(", ")}` : "Nenhum pomodoro neste dia.";
+  $("dayNote").value=DB.notes[selDay]||"";
+}
+let noteTimer=null;
+$("dayNote").addEventListener("input",()=>{
+  clearTimeout(noteTimer);
+  noteTimer=setTimeout(()=>{ const v=$("dayNote").value.trim(); if(v) DB.notes[selDay]=v; else delete DB.notes[selDay]; save(); $("saved").textContent="✔ salvo"; setTimeout(()=>$("saved").textContent="",1200); drawHistGridOnly(); },500);
+});
+function drawHistGridOnly(){ const v=$("dayNote").value; drawHist(); $("dayNote").value=v; }
+$("openMissions").onclick=()=>{ drawMissions(); openModal("missModal"); };
+$("openHist").onclick=()=>{ selDay=today(); drawHist(); openModal("histModal"); };
+
+/* ========================================================= */
+drawNow(); setInterval(drawNow,10000);
+drawHero(); drawMage();
 </script>
 </body>
 </html>
