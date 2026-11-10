@@ -163,6 +163,24 @@
   .backup button,.backup label{border:none; cursor:pointer; background:var(--panel2); color:var(--gold2); font-size:7px; padding:9px 12px; box-shadow:0 0 0 2px var(--golddk)}
   .backup input{display:none}
   .bkmsg{text-align:center; font-size:7px; color:var(--green); margin-top:8px; min-height:10px; line-height:1.6}
+  .form{display:grid; grid-template-columns:1fr auto; gap:8px; margin-top:14px; padding:12px; background:var(--panel2); box-shadow:0 0 0 2px var(--golddk)}
+  .form .full{grid-column:1/-1}
+  .form input,.form select{background:#0a0910; color:var(--ink); border:none; box-shadow:inset 0 0 0 2px #2c2838; padding:8px; font-family:"VT323",monospace; font-size:18px; width:100%}
+  .form button{border:none; cursor:pointer; background:#26401c; color:var(--gold2); font-size:8px; padding:8px 12px; box-shadow:0 0 0 2px var(--green)}
+  .form .lbl{font-size:7px; color:var(--dim); grid-column:1/-1}
+  .sizes{display:flex; gap:6px}
+  .sizes button{flex:1; background:var(--panel); box-shadow:0 0 0 2px #2c2838; color:var(--dim)}
+  .sizes button.on{background:#26401c; box-shadow:0 0 0 2px var(--green); color:var(--gold2)}
+  .mi .chk{cursor:pointer; color:var(--green); font-size:11px; background:none; border:none; padding:0 4px}
+  .mi .rm{cursor:pointer; color:#a8433a; background:none; border:none; font-size:9px; padding:0 4px}
+  .mi .rm.confirm{color:#fff; background:#a8433a; padding:3px 6px; font-size:6px}
+  .mi .name{flex:1; line-height:1.6}
+  .mi .name a{color:var(--green)}
+  .mtabs{display:flex; gap:8px; margin-bottom:12px}
+  .mtabs button{flex:1; border:none; cursor:pointer; background:var(--panel2); color:var(--dim); font-size:8px; padding:9px; box-shadow:0 0 0 2px #2c2838}
+  .mtabs button.on{color:var(--gold2); box-shadow:0 0 0 2px var(--gold)}
+  .edit-tasks{background:none; border:none; color:var(--dim); cursor:pointer; font-size:7px; padding:0}
+  .edit-tasks:hover{color:var(--gold2)}
   /* tarefas */
   .tasks{margin-top:18px; background:var(--panel2); padding:10px 12px; box-shadow:0 0 0 2px var(--golddk)}
   .tasks .h{color:var(--gold2); font-size:8px; margin-bottom:10px; display:flex; justify-content:space-between}
@@ -239,7 +257,7 @@
       <button class="done" id="finish" disabled>✔ CONCLUIR</button>
     </div>
     <div class="tasks">
-      <div class="h"><span>TAREFAS DE HOJE</span><span id="taskCount">0/2</span></div>
+      <div class="h"><span>TAREFAS DE HOJE <span id="taskCount">0/2</span></span><button class="edit-tasks" id="editTasks">✎ editar</button></div>
       <div id="taskList"></div>
     </div>
     <div class="side-btns">
@@ -312,8 +330,27 @@
 <!-- MODAL MISSÕES -->
 <div class="modal" id="missModal" role="dialog" aria-label="Missões">
   <div class="sheet">
-    <h2>MISSÕES DO NOTION <button class="x" data-close>✕</button></h2>
-    <div class="mlist" id="mlist"></div>
+    <h2>MISSÕES E TAREFAS <button class="x" data-close>✕</button></h2>
+    <div class="mtabs"><button id="tabM" class="on">📜 MISSÕES</button><button id="tabT">🔁 TAREFAS DIÁRIAS</button></div>
+    <div id="paneM">
+      <div class="mlist" id="mlist"></div>
+      <div class="form">
+        <span class="lbl">NOVA MISSÃO (feita uma vez só)</span>
+        <input class="full" id="mName" placeholder="Nome da missão" maxlength="80">
+        <div class="sizes full" id="mSize"><button data-xp="50" class="on">PEQUENA · 50</button><button data-xp="100">MÉDIA · 100</button><button data-xp="200">GRANDE · 200</button></div>
+        <input id="mLink" placeholder="Link do Notion (opcional)">
+        <button id="mAdd">+ ADICIONAR</button>
+      </div>
+    </div>
+    <div id="paneT" style="display:none">
+      <div class="mlist" id="tlist"></div>
+      <div class="form">
+        <span class="lbl">NOVA TAREFA DIÁRIA (+50 XP, repete todo dia)</span>
+        <input id="tName" placeholder="Nome da tarefa" maxlength="60">
+        <input id="tTime" type="time" style="width:120px">
+        <button class="full" id="tAdd">+ ADICIONAR</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -348,7 +385,7 @@ const today=()=>dayKey(new Date());
    DADOS (etapa 2: trocar load/save por Google Sheets)
    ========================================================= */
 const KEY="pomodoro-potato-v2";
-const BLANK=()=>({ xp:0, missions:0, boxes:[], focusCount:0, sessions:[], notes:{}, tasks:{}, equip:{}, bag:[], lastDaily:"", nextId:1 });
+const BLANK=()=>({ missionsList:null, dailyTasks:null, taskNames:{}, xp:0, missions:0, boxes:[], focusCount:0, sessions:[], notes:{}, tasks:{}, equip:{}, bag:[], lastDaily:"", nextId:1 });
 let DB;
 function load(){
   let d=null; try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
@@ -360,6 +397,10 @@ function load(){
   const old=Object.values(d.equip||{}).filter(it=>it && typeof it==="object" && !it.id);
   if(old.length){ d.equip={}; old.forEach(it=>{ const n=makeItem(it.slot,it.rarity,d); d.bag.push(n); d.equip[n.slot]=n.id; }); }
   d.bag=d.bag.filter(it=>it && it.id);
+  if(!d.missionsList) d.missionsList=MISSIONS.map((m,i)=>({id:"n"+i, name:m[0], xp:m[1], link:NOTION+m[2], done:i<(d.missions||0), doneDate:null}));
+  if(!d.dailyTasks) d.dailyTasks=DAILY_TASKS.map(([id,name,time])=>({id,name,time}));
+  d.dailyTasks.forEach(t=>d.taskNames[t.id]=t.name);
+  d.missions=d.missionsList.filter(m=>m.done).length;
   return d;
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
@@ -409,10 +450,11 @@ function MISSIONS_XP(n){ return MISSIONS.slice(0,n).reduce((a,m)=>a+m[1],0); }
    ========================================================= */
 const DAILY_TASKS=[["home","Home Tasks","09:30"],["python","Python for Data Science","16:15"]];
 function drawTasks(){
-  const done=DB.tasks[today()]||[];
-  $("taskList").innerHTML=DAILY_TASKS.map(([id,name,h])=>`<div class="task${done.includes(id)?" done":""}" data-id="${id}">
-    <span class="cb">${done.includes(id)?"✔":""}</span><span>${h} · ${name}</span><span class="xpv">+${XP_GAIN.task} XP</span></div>`).join("");
-  $("taskCount").textContent=done.length+"/"+DAILY_TASKS.length;
+  const done=DB.tasks[today()]||[], list=[...DB.dailyTasks].sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
+  $("taskList").innerHTML=list.length?list.map(t=>`<div class="task${done.includes(t.id)?" done":""}" data-id="${t.id}">
+    <span class="cb">${done.includes(t.id)?"✔":""}</span><span>${t.time?t.time+" · ":""}${esc(t.name)}</span><span class="xpv">+${XP_GAIN.task} XP</span></div>`).join("")
+    :`<div class="empty">Nenhuma tarefa. Clique em ✎ editar para criar.</div>`;
+  $("taskCount").textContent=done.filter(id=>DB.dailyTasks.some(t=>t.id===id)).length+"/"+DB.dailyTasks.length;
   document.querySelectorAll(".task").forEach(el=>el.onclick=()=>{
     const id=el.dataset.id, k=today(), list=DB.tasks[k]=DB.tasks[k]||[];
     if(list.includes(id)){ list.splice(list.indexOf(id),1); gainXP(-XP_GAIN.task); }
@@ -420,6 +462,7 @@ function drawTasks(){
     save(); drawAll();
   });
 }
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 const tasksDone=()=>Object.values(DB.tasks).reduce((a,l)=>a+l.length,0);
 
 /* =========================================================
@@ -591,17 +634,25 @@ function drawHero(){
   const a=attributes(), dv=derived(a);
   if($("attrs")) $("attrs").innerHTML=`<div class="at str"><b>${a.str.total}</b>FORÇA</div><div class="at agi"><b>${a.agi.total}</b>AGILIDADE</div><div class="at int"><b>${a.int.total}</b>INTELIG.</div><div class="at dmg"><b>${dv.dmg[0]}</b>DANO</div>`;
   const up=$("up");
-  if(DB.missions>=MISSIONS.length){ up.disabled=true; up.textContent="CURSO OK"; $("next").textContent="Todas as missões do curso concluídas."; }
-  else { const m=MISSIONS[DB.missions]; up.disabled=false; up.textContent="⬆ MISSÃO +"+m[1];
-    $("next").innerHTML=`📜 Próxima: <a href="${NOTION+m[2]}" target="_blank" rel="noopener">${m[0]}</a>`; }
+  const nx=DB.missionsList.find(m=>!m.done);
+  if(!nx){ up.disabled=true; up.textContent="SEM MISSÕES"; $("next").innerHTML="Nenhuma missão pendente. Crie uma em 📜 MISSÕES."; }
+  else { up.disabled=false; up.textContent="⬆ MISSÃO +"+nx.xp;
+    $("next").innerHTML=`📜 Próxima: ${nx.link?`<a href="${esc(nx.link)}" target="_blank" rel="noopener">${esc(nx.name)}</a>`:esc(nx.name)}`; }
   $("openLoot").textContent="📦 "+DB.boxes.length; $("openLoot").disabled=DB.boxes.length<1;
   drawSlots();
 }
 function pop(text){ const f=$("float"); f.textContent=text; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
 function drawAll(){ drawHero(); drawMage(); drawClock(); drawTasks(); }
 
-$("up").onclick=()=>{ if(DB.missions>=MISSIONS.length) return; const m=MISSIONS[DB.missions]; DB.missions++; DB.boxes.push("normal"); gainXP(m[1],"+1 📦"); save(); drawAll(); };
-$("undo").onclick=()=>{ if(DB.missions<1) return; DB.missions--; DB.xp=Math.max(0,DB.xp-MISSIONS[DB.missions][1]); const i=DB.boxes.lastIndexOf("normal"); if(i>-1) DB.boxes.splice(i,1); save(); drawAll(); };
+function setMission(m, done){
+  if(m.done===done) return;
+  m.done=done; m.doneDate=done?new Date().toISOString():null;
+  if(done){ DB.boxes.push("normal"); gainXP(m.xp,"+1 📦"); }
+  else { DB.xp=Math.max(0,DB.xp-m.xp); const i=DB.boxes.lastIndexOf("normal"); if(i>-1) DB.boxes.splice(i,1); }
+  DB.missions=DB.missionsList.filter(x=>x.done).length; save(); drawAll();
+}
+$("up").onclick=()=>{ const m=DB.missionsList.find(x=>!x.done); if(m) setMission(m,true); };
+$("undo").onclick=()=>{ const last=DB.missionsList.filter(x=>x.done).sort((a,b)=>(b.doneDate||"").localeCompare(a.doneDate||""))[0]; if(last) setMission(last,false); };
 
 /* =========================================================
    MODAIS
@@ -687,9 +738,40 @@ $("openStats").onclick=()=>{
 };
 
 /* --- missões --- */
+let confirmRm=null, mSizeXP=50;
+function drawMissionsModal(){
+  $("mlist").innerHTML=DB.missionsList.length?DB.missionsList.map(m=>`<div class="mi${m.done?" ok":""}">
+    <button class="chk" data-id="${m.id}" title="${m.done?"desmarcar":"concluir"}">${m.done?"✔":"▢"}</button>
+    <span class="name">${m.link?`<a href="${esc(m.link)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:esc(m.name)}</span>
+    <span class="xpv">${m.xp} XP</span><button class="rm${confirmRm===m.id?" confirm":""}" data-id="${m.id}">${confirmRm===m.id?"EXCLUIR?":"✕"}</button></div>`).join("")
+    :`<div class="empty">Nenhuma missão. Crie a primeira abaixo.</div>`;
+  $("mlist").querySelectorAll(".chk").forEach(b=>b.onclick=()=>{ const m=DB.missionsList.find(x=>x.id===b.dataset.id); setMission(m,!m.done); drawMissionsModal(); });
+  $("mlist").querySelectorAll(".rm").forEach(b=>b.onclick=()=>{ const id=b.dataset.id;
+    if(confirmRm!==id){ confirmRm=id; drawMissionsModal(); return; }
+    DB.missionsList=DB.missionsList.filter(x=>x.id!==id); DB.missions=DB.missionsList.filter(x=>x.done).length; confirmRm=null; save(); drawAll(); drawMissionsModal(); });
+  const tl=[...DB.dailyTasks].sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
+  $("tlist").innerHTML=tl.length?tl.map(t=>`<div class="mi"><span class="name">${t.time?t.time+" · ":""}${esc(t.name)}</span><span class="xpv">+50 XP/dia</span>
+    <button class="rm${confirmRm===t.id?" confirm":""}" data-id="${t.id}">${confirmRm===t.id?"EXCLUIR?":"✕"}</button></div>`).join("")
+    :`<div class="empty">Nenhuma tarefa diária. Crie abaixo.</div>`;
+  $("tlist").querySelectorAll(".rm").forEach(b=>b.onclick=()=>{ const id=b.dataset.id;
+    if(confirmRm!==id){ confirmRm=id; drawMissionsModal(); return; }
+    DB.dailyTasks=DB.dailyTasks.filter(x=>x.id!==id); confirmRm=null; save(); drawAll(); drawMissionsModal(); });
+}
+function showTab(t){ $("tabM").classList.toggle("on",t==="M"); $("tabT").classList.toggle("on",t==="T"); $("paneM").style.display=t==="M"?"":"none"; $("paneT").style.display=t==="T"?"":"none"; confirmRm=null; drawMissionsModal(); }
+$("tabM").onclick=()=>showTab("M"); $("tabT").onclick=()=>showTab("T");
+$("mSize").querySelectorAll("button").forEach(b=>b.onclick=()=>{ mSizeXP=+b.dataset.xp; $("mSize").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); });
+$("mAdd").onclick=()=>{ const name=$("mName").value.trim(); if(!name){ $("mName").focus(); return; }
+  let link=$("mLink").value.trim(); if(link && !/^https?:\/\//.test(link)) link="https://"+link;
+  DB.missionsList.push({id:"m"+Date.now(), name, xp:mSizeXP, link, done:false, doneDate:null});
+  $("mName").value=""; $("mLink").value=""; save(); drawAll(); drawMissionsModal(); };
+$("tAdd").onclick=()=>{ const name=$("tName").value.trim(); if(!name){ $("tName").focus(); return; }
+  const id="t"+Date.now(); DB.dailyTasks.push({id, name, time:$("tTime").value}); DB.taskNames[id]=name;
+  $("tName").value=""; $("tTime").value=""; save(); drawAll(); drawMissionsModal(); };
+$("mName").addEventListener("keydown",e=>{ if(e.key==="Enter") $("mAdd").click(); });
+$("tName").addEventListener("keydown",e=>{ if(e.key==="Enter") $("tAdd").click(); });
+$("editTasks").onclick=()=>{ openModal("missModal"); showTab("T"); };
 $("openMissions").onclick=()=>{
-  $("mlist").innerHTML=MISSIONS.map((m,i)=>`<div class="mi${i<DB.missions?" ok":""}"><a href="${NOTION+m[2]}" target="_blank" rel="noopener">${i<DB.missions?"✔":"▢"} ${m[0]}</a><span class="xpv">${m[1]} XP</span></div>`).join("");
-  openModal("missModal");
+  openModal("missModal"); showTab("M");
 };
 
 /* --- histórico --- */
@@ -706,7 +788,7 @@ function drawHist(){
   const total=DB.sessions.length, mins=DB.sessions.reduce((a,s)=>a+s.min,0);
   let streak=0; const c=new Date(end); if(!m[dayKey(c)]) c.setDate(c.getDate()-1); while(m[dayKey(c)]){ streak++; c.setDate(c.getDate()-1); }
   $("histStats").innerHTML=`<div><b>${total}</b>POMODOROS</div><div><b>${Math.floor(mins/60)}h${pad(mins%60)}</b>FOCADO</div><div><b>${tasksDone()}</b>TAREFAS</div><div><b>${streak}🔥</b>SEQUÊNCIA</div>`;
-  const list=m[selDay]||[], tk=(DB.tasks[selDay]||[]).map(id=>(DAILY_TASKS.find(t=>t[0]===id)||[0,id])[1]);
+  const list=m[selDay]||[], tk=(DB.tasks[selDay]||[]).map(id=>esc(DB.taskNames[id]||id));
   $("dayTitle").textContent=new Date(selDay+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"}).toUpperCase();
   $("daySummary").innerHTML=(list.length?`${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · ${list.map(s=>s.time+" ("+s.min+"m"+(s.early?" ✔antes":"")+")").join(", ")}`:"Nenhum pomodoro neste dia.")
     +(tk.length?`<br>Tarefas: ${tk.map(t=>"✔ "+t).join(" · ")}`:"");
