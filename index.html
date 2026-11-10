@@ -243,7 +243,6 @@
     <div class="lvline"><span class="lv" id="lv">Nv. 1</span><span class="rank" id="rank">APRENDIZ</span></div>
     <div class="xp"><i id="xpbar"></i></div>
     <div class="xptext" id="xptext"></div>
-    <div class="attrs" id="attrs"></div>
     <div class="next" id="next"></div>
     <div class="row">
       <button class="btn" id="up">⬆ MISSÃO</button>
@@ -548,7 +547,7 @@ function drawHero(){
   $("xpbar").style.width=(L.lv>=MAXLV?100:L.into/L.need*100)+"%";
   $("xptext").textContent= L.lv>=MAXLV ? "NÍVEL MÁXIMO" : `${L.into} / ${L.need} XP · próxima forma no Nv. ${st===0?10:st===1?20:"—"}`;
   const a=attributes(), dv=derived(a);
-  $("attrs").innerHTML=`<div class="at str"><b>${a.str.total}</b>FORÇA</div><div class="at agi"><b>${a.agi.total}</b>AGILIDADE</div><div class="at int"><b>${a.int.total}</b>INTELIG.</div><div class="at dmg"><b>${dv.dmg[0]}</b>DANO</div>`;
+  if($("attrs")) $("attrs").innerHTML=`<div class="at str"><b>${a.str.total}</b>FORÇA</div><div class="at agi"><b>${a.agi.total}</b>AGILIDADE</div><div class="at int"><b>${a.int.total}</b>INTELIG.</div><div class="at dmg"><b>${dv.dmg[0]}</b>DANO</div>`;
   const up=$("up");
   if(DB.missions>=MISSIONS.length){ up.disabled=true; up.textContent="CURSO OK"; $("next").textContent="Todas as missões do curso concluídas."; }
   else { const m=MISSIONS[DB.missions]; up.disabled=false; up.textContent="⬆ MISSÃO +"+m[1];
