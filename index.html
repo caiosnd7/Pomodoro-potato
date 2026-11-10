@@ -149,6 +149,10 @@
   .mi a:hover{color:var(--green)}
   .mi .xpv{color:var(--gold2); white-space:nowrap}
 
+  .adj{display:flex; justify-content:center; gap:10px; margin-top:12px}
+  .adj button{border:none; cursor:pointer; background:var(--panel2); color:var(--gold2); font-size:8px; padding:7px 10px; box-shadow:0 0 0 2px var(--golddk)}
+  .adj button:disabled{opacity:.35; cursor:default}
+  .adj .done{color:var(--green); box-shadow:0 0 0 2px var(--green2)}
   /* tarefas */
   .tasks{margin-top:18px; background:var(--panel2); padding:10px 12px; box-shadow:0 0 0 2px var(--golddk)}
   .tasks .h{color:var(--gold2); font-size:8px; margin-bottom:10px; display:flex; justify-content:space-between}
@@ -219,6 +223,11 @@
       <button class="key on" data-mode="focus">FOCO<span class="ic">◎</span></button>
       <button class="key" data-mode="rest">PAUSA<span class="ic">❚❚</span></button>
       <button class="key" id="reset">ZERAR<span class="ic">↺</span></button>
+    </div>
+    <div class="adj">
+      <button id="minus">−5 MIN</button>
+      <button id="plus">+5 MIN</button>
+      <button class="done" id="finish" disabled>✔ CONCLUIR</button>
     </div>
     <div class="tasks">
       <div class="h"><span>TAREFAS DE HOJE</span><span id="taskCount">0/2</span></div>
@@ -472,6 +481,7 @@ function derived(a){
    RELÓGIO
    ========================================================= */
 const MODES={focus:{min:25,label:"FOCO",next:"rest"}, rest:{min:5,label:"PAUSA",next:"focus"}};
+const MIN_POMO=10; // minutos mínimos para contar como pomodoro
 const SEG=30, RING=["#3fc79a","#45cf8a","#54d474","#6dd85a","#8ad84a","#a6d640","#c2d23a","#d8c936","#e6b932","#ebaa30","#e89a2e","#e08a2c"];
 const segs=[];
 (function(){ const svg=$("ring"), cx=120, cy=120, r1=96, r2=112, gap=3.2, p=(r,a)=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
@@ -488,21 +498,32 @@ function drawClock(){
   $("pomoBox").textContent = (DB.lastDaily===today() ? "✔ Baú diário já ganho hoje" : "🎁 Faça o 1º pomodoro do dia: baú diário") + ` · 🍅 ${cyc}/4 p/ caixa`;
   document.querySelectorAll(".key[data-mode]").forEach(k=>k.classList.toggle("on",k.dataset.mode===mode));
   document.title=(tick?fmt(left)+" · ":"")+"Pomodoro-potato";
+  drawAdj();
 }
 function drawNow(){ const d=new Date(); $("now").textContent=pad(d.getHours())+":"+pad(d.getMinutes()); $("day").textContent=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][d.getDay()]; }
 function stop(){ clearInterval(tick); tick=null; endAt=null; $("startIc").textContent="▶"; }
+function logFocus(min, early){
+  const d=new Date(); DB.sessions.push({date:today(), time:pad(d.getHours())+":"+pad(d.getMinutes()), min, early});
+  if(min>=MIN_POMO){
+    DB.focusCount++;
+    if(DB.lastDaily!==today()){ DB.lastDaily=today(); DB.boxes.unshift("daily"); setTimeout(()=>pop("🎁 BAÚ DIÁRIO!"),1500); }
+    if(DB.focusCount%4===0) DB.boxes.push("normal");
+  }
+  gainXP(min); save(); drawAll();
+}
+function elapsedMin(){ return Math.floor((total-left)/60); }
+function drawAdj(){
+  const running=!!tick, f=mode==="focus";
+  $("minus").disabled=running||!f||MODES.focus.min<=5; $("plus").disabled=running||!f||MODES.focus.min>=60;
+  $("finish").disabled=!f||elapsedMin()<1;
+  $("finish").textContent= f&&elapsedMin()>=1 ? `✔ CONCLUIR (${elapsedMin()} min)` : "✔ CONCLUIR";
+}
 function setMode(m){ stop(); mode=m; total=MODES[m].min*60; left=total; drawClock(); }
 function step(){
   left=Math.max(0,Math.round((endAt-Date.now())/1000));
   if(left===0){
     SND.done();
-    if(mode==="focus"){
-      const d=new Date(); DB.sessions.push({date:today(), time:pad(d.getHours())+":"+pad(d.getMinutes()), min:MODES.focus.min});
-      DB.focusCount++;
-      if(DB.lastDaily!==today()){ DB.lastDaily=today(); DB.boxes.unshift("daily"); setTimeout(()=>pop("🎁 BAÚ DIÁRIO!"),1500); }
-      if(DB.focusCount%4===0) DB.boxes.push("normal");
-      gainXP(XP_GAIN.pomodoro); save(); drawAll();
-    }
+    if(mode==="focus") logFocus(Math.round(total/60), false);
     setMode(MODES[mode].next); return;
   }
   drawClock();
@@ -510,6 +531,11 @@ function step(){
 $("start").onclick=()=>{ try{audio=audio||new (window.AudioContext||window.webkitAudioContext)(); audio.resume()}catch(e){}
   if(tick){ stop(); drawClock(); return; } endAt=Date.now()+left*1000; tick=setInterval(step,250); $("startIc").textContent="❚❚"; drawClock(); };
 $("reset").onclick=()=>setMode(mode);
+$("minus").onclick=()=>{ if(tick) return; MODES.focus.min=Math.max(5,MODES.focus.min-5); DB.focusMin=MODES.focus.min; save(); setMode("focus"); };
+$("plus").onclick=()=>{ if(tick) return; MODES.focus.min=Math.min(60,MODES.focus.min+5); DB.focusMin=MODES.focus.min; save(); setMode("focus"); };
+$("finish").onclick=()=>{ if(mode!=="focus") return; const m=elapsedMin(); if(m<1) return; SND.done(); logFocus(m,true);
+  if(m<MIN_POMO) setTimeout(()=>pop(`${m} min salvos (pomodoro conta a partir de ${MIN_POMO})`),1200);
+  setMode("rest"); };
 document.querySelectorAll(".key[data-mode]").forEach(k=>k.onclick=()=>setMode(k.dataset.mode));
 
 /* =========================================================
@@ -666,7 +692,7 @@ function drawHist(){
   $("histStats").innerHTML=`<div><b>${total}</b>POMODOROS</div><div><b>${Math.floor(mins/60)}h${pad(mins%60)}</b>FOCADO</div><div><b>${tasksDone()}</b>TAREFAS</div><div><b>${streak}🔥</b>SEQUÊNCIA</div>`;
   const list=m[selDay]||[], tk=(DB.tasks[selDay]||[]).map(id=>(DAILY_TASKS.find(t=>t[0]===id)||[0,id])[1]);
   $("dayTitle").textContent=new Date(selDay+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"}).toUpperCase();
-  $("daySummary").innerHTML=(list.length?`${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · às ${list.map(s=>s.time).join(", ")}`:"Nenhum pomodoro neste dia.")
+  $("daySummary").innerHTML=(list.length?`${list.length} pomodoro(s) · ${list.reduce((a,s)=>a+s.min,0)} min · ${list.map(s=>s.time+" ("+s.min+"m"+(s.early?" ✔antes":"")+")").join(", ")}`:"Nenhum pomodoro neste dia.")
     +(tk.length?`<br>Tarefas: ${tk.map(t=>"✔ "+t).join(" · ")}`:"");
   $("dayNote").value=DB.notes[selDay]||"";
 }
@@ -678,7 +704,7 @@ $("openHist").onclick=()=>{ selDay=today(); drawHist(); openModal("histModal"); 
 /* ========================================================= */
 drawNow(); setInterval(drawNow,10000);
 setInterval(()=>{ drawTasks(); drawClock(); },60000); // vira o dia sozinho
-DB=load(); save(); drawAll();
+DB=load(); if(DB.focusMin){ MODES.focus.min=DB.focusMin; total=left=DB.focusMin*60; } save(); drawAll();
 </script>
 
 </body>
