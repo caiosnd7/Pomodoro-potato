@@ -16,7 +16,13 @@
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%}
   body{background:var(--bg); color:var(--ink); font-family:"Press Start 2P",monospace; font-size:10px;
-    display:flex; align-items:center; justify-content:center; padding:20px}
+    display:flex; align-items:center; justify-content:center; padding:20px; min-height:100vh;
+    background-image:linear-gradient(rgba(8,7,14,.55),rgba(8,7,14,.7)), url("img/fundo.jpg");
+    background-size:cover; background-position:center; background-attachment:fixed}
+  .box{backdrop-filter:blur(2px)}
+  .side-btns{display:flex; gap:10px; justify-content:center; margin-top:20px}
+  .side-btns .hist-btn{margin:0}
+  a.hist-btn{text-decoration:none}
   button{font-family:inherit}
   .stage{display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch}
   .box{background:var(--panel); width:330px; padding:16px; position:relative;
@@ -212,7 +218,6 @@
 
   <!-- RELÓGIO -->
   <section class="box" aria-label="Pomodoro">
-    <span class="tag">POMODORO</span>
     <div class="screen">
       <svg id="ring" width="250" height="250" viewBox="0 0 240 240" aria-hidden="true"></svg>
       <div class="readout">
@@ -237,13 +242,15 @@
       <div class="h"><span>TAREFAS DE HOJE</span><span id="taskCount">0/2</span></div>
       <div id="taskList"></div>
     </div>
-    <button class="hist-btn" id="openHist">📜 HISTÓRICO</button>
+    <div class="side-btns">
+      <button class="hist-btn" id="openHist">📜 HISTÓRICO</button>
+      <a class="hist-btn" href="https://open.spotify.com/" target="_blank" rel="noopener">🎵 SPOTIFY</a>
+    </div>
     <div class="boxinfo" id="pomoBox"></div>
   </section>
 
   <!-- MAGO -->
   <section class="box" aria-label="Mago">
-    <span class="tag">MAGO</span>
     <div class="hero">
       <div class="portrait" id="portrait">
         <div class="shadow"></div>
